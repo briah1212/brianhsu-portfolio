@@ -1,0 +1,39 @@
+---
+description: Auto-commit after completing Cursor prompts with conventional commit messages
+alwaysApply: true
+---
+
+# Git Workflow
+
+After completing a user prompt that modifies code, create a git commit unless the user explicitly says not to.
+
+## When to commit
+
+- Commit when the prompt produced meaningful file changes (features, fixes, refactors, styles, docs, chore).
+- Do NOT commit if the user only asked questions with no code changes.
+- Do NOT commit if the user explicitly says "don't commit" or "no commit".
+
+## Commit process
+
+1. Run `git status` and `git diff` to review changes.
+2. Stage only relevant files (never `.env`, secrets, or `node_modules`).
+3. Write a **Conventional Commits** message:
+
+| Change type | Prefix | Example |
+|-------------|--------|---------|
+| New feature | `feat:` | `feat: add edge-based window resizing` |
+| Bug fix | `fix:` | `fix: correct light mode header text color` |
+| Refactor | `refactor:` | `refactor: extract dock magnification logic` |
+| Styling | `style:` | `style: increase dock icon spacing` |
+| Docs | `docs:` | `docs: add project contribution guide` |
+| Chore | `chore:` | `chore: update gitignore for Next.js` |
+
+4. Commit using a HEREDOC for the message.
+5. Run `git status` to confirm success.
+6. Do NOT push unless the user asks.
+
+## Message quality
+
+- One logical change per commit per prompt.
+- Focus on **why**, not just what.
+- Keep subject line under 72 characters.
