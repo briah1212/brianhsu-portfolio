@@ -347,3 +347,40 @@ body {
     opacity: 1;
   }
 }
+
+.loading-intro-slide {
+  max-width: 1000px;
+  width: 100%;
+  padding: 0 1.5rem;
+}
+
+.loading-intro-row {
+  gap: 0;
+}
+
+.loading-intro-row p {
+  flex-shrink: 0;
+  margin: 0.35ch;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: clamp(0.85rem, 2.2vw, 1.35rem);
+  line-height: 1;
+  white-space: nowrap;
+  color: #00ff66;
+  text-shadow:
+    0 0 8px rgba(0, 255, 102, 0.5),
+    0 0 18px rgba(0, 255, 102, 0.2);
+}
+
+.loading-intro-row p.center {
+  font-size: clamp(1rem, 2.8vw, 1.65rem);
+  font-weight: 600;
+}
+
+.loading-flash {
+  z-index: 30;
+  mix-blend-mode: screen;
+}
+
+.loading-boot-panel {
+  will-change: transform, opacity, filter;
+}
