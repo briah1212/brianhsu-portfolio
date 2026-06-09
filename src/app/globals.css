@@ -315,3 +315,35 @@ body {
 ::selection {
   background: rgba(90, 200, 250, 0.3);
 }
+
+/* Matrix boot loading screen */
+.loading-line {
+  text-shadow:
+    0 0 8px rgba(0, 255, 102, 0.55),
+    0 0 20px rgba(0, 255, 102, 0.25);
+}
+
+.loading-sub {
+  text-shadow: 0 0 6px rgba(0, 204, 85, 0.35);
+}
+
+.loading-scanlines {
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 255, 102, 0.02) 2px,
+    rgba(0, 255, 102, 0.02) 4px
+  );
+  animation: loading-flicker 4s ease-in-out infinite;
+}
+
+@keyframes loading-flicker {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}

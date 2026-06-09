@@ -1,37 +1,38 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Wallpaper } from "./Wallpaper";
 import { MenuBar } from "./MenuBar";
 import { Dock } from "./Dock";
 import { WindowManager } from "@/components/window/Window";
+import { LoadingScreen } from "@/components/loading/LoadingScreen";
 import { useWindowStore } from "@/store/windowStore";
 
 export function Desktop() {
-  const [mounted, setMounted] = useState(false);
+  const [isBooting, setIsBooting] = useState(true);
   const theme = useWindowStore((s) => s.theme);
   const activeWindowId = useWindowStore((s) => s.activeWindowId);
   const closeWindow = useWindowStore((s) => s.closeWindow);
   const windows = useWindowStore((s) => s.windows);
   const openApp = useWindowStore((s) => s.openApp);
 
-  useEffect(() => {
-    setMounted(true);
+  const handleBootComplete = useCallback(() => {
+    setIsBooting(false);
   }, []);
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
   }, [theme]);
 
-  // Open Home on first visit
   useEffect(() => {
-    if (!mounted) return;
+    if (isBooting) return;
     const timer = setTimeout(() => openApp("home"), 400);
     return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mounted]);
+  }, [isBooting, openApp]);
 
   useEffect(() => {
+    if (isBooting) return;
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "w") {
         e.preventDefault();
@@ -55,14 +56,10 @@ export function Desktop() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [activeWindowId, closeWindow, windows]);
+  }, [isBooting, activeWindowId, closeWindow, windows]);
 
-  if (!mounted) {
-    return (
-      <div className="desktop relative h-screen w-screen overflow-hidden">
-        <Wallpaper />
-      </div>
-    );
+  if (isBooting) {
+    return <LoadingScreen onComplete={handleBootComplete} />;
   }
 
   return (
