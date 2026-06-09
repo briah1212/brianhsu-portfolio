@@ -1,0 +1,15 @@
+{
+  "slug": "lyft-routing",
+  "title": "ETA Prediction Pipeline",
+  "tagline": "Internship project at Lyft — maps & routing",
+  "description": "Contributed to feature engineering and evaluation infrastructure for ride ETA models, improving prediction accuracy on edge-case routes.",
+  "techStack": ["Python", "Spark", "Airflow", "Feature Stores", "A/B Testing"],
+  "problem": "ETA errors on complex urban corridors disproportionately affect rider trust and driver dispatch efficiency.",
+  "approach": "Built offline evaluation notebooks comparing model variants on stratified route segments. Shipped two features to the production pipeline after rigorous shadow testing.",
+  "solution": "One feature reduced MAE by ~4% on highway-to-surface-street transitions in the Bay Area market.",
+  "learned": "Production ML is 20% modeling and 80% data plumbing, monitoring, and stakeholder alignment. Shipping small, measurable wins compounds.",
+  "links": [
+    { "label": "Lyft Engineering", "url": "https://eng.lyft.com" }
+  ],
+  "featured": true
+}

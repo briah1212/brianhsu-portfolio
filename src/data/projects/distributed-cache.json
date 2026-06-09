@@ -1,0 +1,16 @@
+{
+  "slug": "distributed-cache",
+  "title": "Distributed Cache Layer",
+  "tagline": "High-throughput in-memory caching for microservices",
+  "description": "A Redis-inspired distributed cache with consistent hashing, TTL eviction, and a lightweight gRPC API — built to explore systems design at scale.",
+  "techStack": ["Go", "gRPC", "Consistent Hashing", "Docker", "Prometheus"],
+  "problem": "Microservices often need shared, low-latency state without overloading a central database. Off-the-shelf solutions are powerful but opaque — I wanted to understand the tradeoffs firsthand.",
+  "approach": "Designed a sharded key-value store with virtual nodes on a hash ring, replication factor of 2, and LRU eviction per shard. Exposed a minimal gRPC interface and instrumented with Prometheus metrics.",
+  "solution": "The system handles 50k+ ops/sec in local benchmarks with sub-millisecond p99 reads. Shard rebalancing on node add/remove completes in under 200ms for a 4-node cluster.",
+  "learned": "Consistent hashing is elegant on paper but edge cases (hot keys, uneven vnode distribution) require careful tuning. Observability from day one made debugging replication lag far easier.",
+  "links": [
+    { "label": "GitHub", "url": "https://github.com" },
+    { "label": "Write-up", "url": "#" }
+  ],
+  "featured": true
+}

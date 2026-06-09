@@ -1,0 +1,16 @@
+{
+  "slug": "cognitive-load-tracker",
+  "title": "Cognitive Load Tracker",
+  "tagline": "Bridging HCI research and real-time software instrumentation",
+  "description": "A research tool that correlates task-switching behavior with self-reported cognitive load, combining browser telemetry with validated psychometric scales.",
+  "techStack": ["TypeScript", "React", "Python", "Flask", "D3.js", "SQLite"],
+  "problem": "Cognitive load is hard to measure in situ. Existing lab studies lack ecological validity; field studies lack structured instrumentation.",
+  "approach": "Built a browser extension that logs focus events and tab switches, paired with periodic NASA-TLX micro-surveys. A Python backend aggregates sessions and visualizes load curves over time.",
+  "solution": "Pilot study with 12 participants showed a significant correlation (r ≈ 0.72) between switch frequency and reported mental demand during coding tasks.",
+  "learned": "The intersection of CS and CogSci is most powerful when instrumentation is lightweight and consent-first. Small n is fine for exploratory research if the pipeline is reproducible.",
+  "links": [
+    { "label": "GitHub", "url": "https://github.com" },
+    { "label": "Paper Draft", "url": "#" }
+  ],
+  "featured": true
+}
