@@ -2,6 +2,7 @@
 
 import { memo, useCallback, useLayoutEffect, useRef, useState } from "react";
 import {
+  AnimatePresence,
   motion,
   useMotionValue,
   useSpring,
@@ -165,9 +166,17 @@ const DockIcon = memo(function DockIcon({
         </span>
       </motion.button>
 
-      {isOpen && (
-        <span className="dock-open-indicator absolute bottom-0 left-1/2 h-[3px] w-[3px] -translate-x-1/2 rounded-full bg-white/85" />
-      )}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.span
+            className="dock-open-indicator"
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0 }}
+            transition={{ duration: 0.15, ease: "easeOut" }}
+          />
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 });

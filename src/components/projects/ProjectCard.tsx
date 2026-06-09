@@ -16,10 +16,10 @@ export function ProjectCard({ project, onClick, index }: ProjectCardProps) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
       onClick={onClick}
-      className="group w-full rounded-xl border border-foreground/5 bg-foreground/[0.02] p-4 text-left transition-colors hover:border-foreground/10 hover:bg-foreground/[0.04]"
+      className="group w-full border-b border-foreground/8 py-4 text-left transition-colors last:border-b-0 hover:text-sky-400/90"
     >
       <div className="flex items-start justify-between gap-2">
-        <h3 className="text-sm font-semibold group-hover:text-sky-400 transition-colors">
+        <h3 className="text-sm font-semibold transition-colors group-hover:text-sky-400">
           {project.title}
         </h3>
         {project.featured && (
@@ -35,7 +35,7 @@ export function ProjectCard({ project, onClick, index }: ProjectCardProps) {
         {project.techStack.slice(0, 4).map((tech) => (
           <span
             key={tech}
-            className="rounded bg-foreground/5 px-1.5 py-0.5 text-[10px] text-foreground/45"
+            className="text-[10px] text-foreground/40"
           >
             {tech}
           </span>

@@ -5,8 +5,6 @@ import { useWindowStore } from "@/store/windowStore";
 
 export function HomeApp() {
   const openApp = useWindowStore((s) => s.openApp);
-  const theme = useWindowStore((s) => s.theme);
-
   return (
     <div className="app-content flex h-full flex-col items-center justify-center p-8 text-center">
       <motion.div
@@ -15,17 +13,7 @@ export function HomeApp() {
         transition={{ duration: 0.4 }}
         className="max-w-md"
       >
-        <div
-          className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-2xl text-4xl shadow-lg"
-          style={{
-            background:
-              theme === "dark"
-                ? "linear-gradient(145deg, #2a2a3e, #1a1a2e)"
-                : "linear-gradient(145deg, #fff, #f0f4f8)",
-          }}
-        >
-          👋
-        </div>
+        <div className="mx-auto mb-5 text-5xl">👋</div>
         <h1 className="text-2xl font-semibold tracking-tight">
           Hi, I&apos;m{" "}
           <span className="bg-gradient-to-r from-sky-400 to-violet-400 bg-clip-text text-transparent">
@@ -47,7 +35,7 @@ export function HomeApp() {
             <button
               key={app}
               onClick={() => openApp(app)}
-              className="rounded-lg bg-foreground/5 px-4 py-2 text-xs font-medium text-foreground/70 transition-colors hover:bg-foreground/10 hover:text-foreground"
+              className="px-3 py-1.5 text-xs font-medium text-foreground/55 transition-colors hover:text-sky-400"
             >
               Open {app.charAt(0).toUpperCase() + app.slice(1)}
             </button>

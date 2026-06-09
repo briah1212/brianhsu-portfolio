@@ -37,7 +37,7 @@ export function ProjectsApp({ windowId, route }: ProjectsAppProps) {
       <p className="mt-1 text-xs text-foreground/50">
         Selected work across systems, research, and internships.
       </p>
-      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+      <div className="mt-4 flex flex-col">
         {projects.map((project, i) => (
           <ProjectCard
             key={project.slug}

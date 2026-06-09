@@ -45,11 +45,9 @@ export function ContactApp() {
               href={link.href}
               target={link.href.startsWith("mailto") ? undefined : "_blank"}
               rel="noopener noreferrer"
-              className="flex items-center gap-3 rounded-xl border border-foreground/5 bg-foreground/[0.02] p-3 transition-colors hover:border-foreground/10 hover:bg-foreground/[0.04]"
+              className="flex items-center gap-3 py-2 transition-colors hover:text-sky-400"
             >
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-foreground/5">
-                <link.icon size={16} className="text-foreground/60" />
-              </div>
+              <link.icon size={16} className="shrink-0 text-foreground/45" />
               <div>
                 <p className="text-xs font-medium">{link.label}</p>
                 <p className="text-[11px] text-foreground/45">{link.value}</p>
@@ -60,7 +58,7 @@ export function ContactApp() {
 
         <a
           href="/resume.pdf"
-          className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-foreground/5 py-2.5 text-xs font-medium text-foreground/70 transition-colors hover:bg-foreground/10"
+          className="mt-4 flex w-full items-center justify-center gap-2 py-2 text-xs font-medium text-foreground/55 transition-colors hover:text-sky-400"
         >
           <FileDown size={14} />
           Download Resume

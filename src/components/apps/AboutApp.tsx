@@ -55,7 +55,7 @@ export function AboutApp() {
           {interests.map((item) => (
             <span
               key={item.label}
-              className="inline-flex items-center gap-1.5 rounded-full bg-foreground/5 px-3 py-1 text-xs text-foreground/70"
+              className="inline-flex items-center gap-1.5 text-xs text-foreground/60"
             >
               <span>{item.emoji}</span>
               {item.label}
@@ -66,12 +66,9 @@ export function AboutApp() {
         <h3 className="mt-6 text-sm font-semibold text-foreground/80">
           Experience
         </h3>
-        <div className="mt-3 space-y-3">
+        <div className="mt-3 divide-y divide-foreground/8">
           {experiences.map((exp) => (
-            <div
-              key={exp.org}
-              className="rounded-lg border border-foreground/5 bg-foreground/[0.02] p-3"
-            >
+            <div key={exp.org} className="py-3 first:pt-0 last:pb-0">
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <p className="text-sm font-medium">{exp.role}</p>

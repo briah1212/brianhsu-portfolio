@@ -48,7 +48,7 @@ export function ProjectCaseStudy({ project, onBack }: ProjectCaseStudyProps) {
       <p className="mt-1 text-sm text-foreground/50">{project.tagline}</p>
 
       {/* Placeholder screenshot area */}
-      <div className="mt-4 flex h-32 items-center justify-center rounded-lg border border-dashed border-foreground/10 bg-foreground/[0.02]">
+      <div className="mt-4 flex h-32 items-center justify-center rounded-lg border border-dashed border-foreground/10">
         <span className="text-xs text-foreground/25">
           Screenshot / demo placeholder
         </span>
@@ -58,16 +58,9 @@ export function ProjectCaseStudy({ project, onBack }: ProjectCaseStudyProps) {
         {project.description}
       </p>
 
-      <div className="mt-3 flex flex-wrap gap-1.5">
-        {project.techStack.map((tech) => (
-          <span
-            key={tech}
-            className="rounded-full bg-sky-500/10 px-2.5 py-0.5 text-xs text-sky-400"
-          >
-            {tech}
-          </span>
-        ))}
-      </div>
+      <p className="mt-3 text-xs text-sky-400/90">
+        {project.techStack.join(" · ")}
+      </p>
 
       <Section title="Problem">{project.problem}</Section>
       <Section title="Approach">{project.approach}</Section>
@@ -82,7 +75,7 @@ export function ProjectCaseStudy({ project, onBack }: ProjectCaseStudyProps) {
               href={link.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 rounded-lg bg-foreground/5 px-3 py-1.5 text-xs font-medium text-foreground/70 transition-colors hover:bg-foreground/10"
+              className="inline-flex items-center gap-1 text-xs font-medium text-foreground/55 transition-colors hover:text-sky-400"
             >
               {link.label}
               <ExternalLink size={12} />
