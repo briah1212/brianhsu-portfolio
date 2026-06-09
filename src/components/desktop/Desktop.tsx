@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { Wallpaper } from "./Wallpaper";
 import { MenuBar } from "./MenuBar";
 import { Dock } from "./Dock";
@@ -63,11 +64,16 @@ export function Desktop() {
   }
 
   return (
-    <div className="desktop relative h-screen w-screen overflow-hidden">
+    <motion.div
+      className="desktop relative h-screen w-screen overflow-hidden"
+      initial={{ opacity: 0, scale: 1.06, filter: "blur(6px)" }}
+      animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+      transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+    >
       <Wallpaper />
       <MenuBar />
       <WindowManager />
       <Dock />
-    </div>
+    </motion.div>
   );
 }

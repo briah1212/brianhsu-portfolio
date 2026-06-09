@@ -6,18 +6,24 @@ import type { Timeline } from "animejs";
 
 const CURSOR = "░▒▓█";
 const SCRAMBLE_CHARS = "01░▒▓█#@";
-const MAX_BOOT_MS = 28000;
+const MAX_BOOT_MS = 24000;
 
-/** Symmetric diamond grid — matches reference row counts */
-const INTRO_ROWS = [2, 3, 4, 5, 4, 3, 2] as const;
-const INTRO_CENTER_ROW = 3;
+/** Symmetric row layout — center row is the focal 5-wide line */
+const GRID_ROWS = [2, 2, 3, 5, 3, 2, 2] as const;
 
 const BOOT_SEQUENCE = [
-  { main: "Loading", sub: "", hold: 650 },
-  { main: "Initializing desktop environment", sub: "kernel: bh-desktop v1.0", hold: 580 },
-  { main: "Loading window system", sub: "compositor: active", hold: 520 },
-  { main: "Mounting user interface", sub: "dock: ready", hold: 520 },
-  { main: "Jumping into Brian Hsu's site", sub: "access granted", hold: 1600 },
+  {
+    main: "Initializing desktop environment",
+    sub: "kernel: bh-desktop v1.0",
+    hold: 700,
+  },
+  { main: "Loading window system", sub: "compositor: active", hold: 650 },
+  { main: "Mounting user interface", sub: "dock: ready", hold: 650 },
+  {
+    main: "Jumping into Brian Hsu's site",
+    sub: "access granted",
+    hold: 2000,
+  },
 ] as const;
 
 interface LoadingScreenProps {
@@ -48,61 +54,61 @@ function scrambleOut(duration = 420) {
   });
 }
 
-function addIntroducingGrid(tl: Timeline, slide: HTMLElement) {
-  const centerEl = slide.querySelector("p.center");
-  const otherEls = slide.querySelectorAll("p:not(.center)");
+function addIntroGrid(tl: Timeline, gridSlide: HTMLElement) {
+  const center = gridSlide.querySelector<HTMLElement>(".loading-center");
+  const outerCells = gridSlide.querySelectorAll<HTMLElement>(
+    ".loading-grid p:not(.loading-center)"
+  );
+  const allCells = gridSlide.querySelectorAll<HTMLElement>(".loading-grid p");
 
-  tl.add(slide, {
-    opacity: { to: 1, duration: 280, ease: "linear" },
-    scale: [{ from: 0.72, to: 1, duration: 1400, ease: "inOut(3.5)" }],
-    ease: "inOut(3)",
+  if (!center) return;
+
+  tl.add(gridSlide, {
+    opacity: { to: 1, duration: 280 },
+    scale: [{ from: 0.82, to: 1, duration: 1200, ease: "out(3)" }],
   });
 
-  if (centerEl) {
-    tl.add(
-      centerEl,
-      {
-        scale: { from: 3, to: 1, duration: 1200, ease: "inOut(3)" },
-        innerHTML: scrambleText({
-          text: "Introducing",
-          override: " ",
-          ease: "inQuad",
-          duration: 620,
-          from: "center",
-          cursor: CURSOR,
-          chars: SCRAMBLE_CHARS,
-        }),
-      },
-      "<<"
-    );
-  }
+  tl.add(center, {
+    opacity: { to: 1, duration: 220 },
+    scale: [{ from: 2.8, to: 1, duration: 1100, ease: "out(3.5)" }],
+    innerHTML: scrambleText({
+      text: "Loading",
+      from: "center",
+      duration: 720,
+      cursor: CURSOR,
+      perturbation: 0.2,
+      chars: SCRAMBLE_CHARS,
+      ease: "inQuad",
+    }),
+  });
 
   tl.add(
-    otherEls,
+    outerCells,
     {
-      scale: [{ from: 0.6, to: 1, duration: 900, ease: "out(3)" }],
+      opacity: { to: 1, duration: 200 },
+      scale: [{ from: 0.7, to: 1, duration: 800, ease: "out(3)" }],
       innerHTML: scrambleText({
-        text: "Introducing",
         override: " ",
         from: "center",
-        duration: 580,
-        revealDelay: 280,
-        cursor: "░▒▓",
-        perturbation: 0.25,
+        duration: 620,
+        revealDelay: 320,
+        cursor: "░▒▓█",
+        perturbation: 0.28,
         chars: SCRAMBLE_CHARS,
       }),
     },
-    stagger([180, 720], { grid: true, from: "center", ease: "out(3)", start: "<<" })
+    stagger([300, 900], {
+      grid: true,
+      from: "center",
+      ease: "out(3)",
+      start: "<<+=120",
+    })
   );
 
-  tl.add({ duration: 700 });
-}
-
-function exitIntroducingGrid(tl: Timeline, slide: HTMLElement) {
-  const allPs = slide.querySelectorAll("p");
+  tl.add({ duration: 900 });
 
   tl.add(
-    allPs,
+    allCells,
     {
       innerHTML: scrambleText({
         text: "",
@@ -114,17 +120,17 @@ function exitIntroducingGrid(tl: Timeline, slide: HTMLElement) {
         ease: "outQuad",
       }),
     },
-    stagger([40, 280], { grid: true, from: "center", ease: "out(3)" })
+    stagger([100, 450], { grid: true, from: "center", ease: "out(3)" })
   );
 
   tl.add(
-    slide,
+    gridSlide,
     {
       opacity: { to: 0, duration: 450, ease: "in(2)" },
-      scale: { to: 1.06, duration: 500, ease: "in(2)" },
-      filter: { to: "blur(6px)", duration: 450 },
+      scale: { to: 0.88, duration: 450, ease: "in(2)" },
+      filter: { to: "blur(6px)", duration: 400 },
     },
-    "<<+=120"
+    "+=100"
   );
 }
 
@@ -136,7 +142,7 @@ function addBootStep(
   isFirst: boolean
 ) {
   if (!isFirst) {
-    tl.add(mainEl, { innerHTML: scrambleOut() });
+    tl.add(mainEl, { innerHTML: scrambleOut(480) });
     tl.add(
       subEl,
       {
@@ -151,7 +157,6 @@ function addBootStep(
       },
       "<<"
     );
-    tl.add({ duration: 120 });
   }
 
   tl.add(
@@ -163,7 +168,7 @@ function addBootStep(
       }),
       innerHTML: scrambleIn(step.main, step.main.length > 22 ? 1100 : 820),
     },
-    isFirst ? 0 : "+=100"
+    isFirst ? "+=200" : "+=140"
   );
 
   if (step.sub) {
@@ -176,11 +181,11 @@ function addBootStep(
           from: "left",
           duration: 580,
           cursor: "░▒▓",
-          perturbation: 0.2,
+          perturbation: 0.22,
           ease: "inOut(2)",
         }),
       },
-      "<<+=220"
+      "<<+=240"
     );
   }
 
@@ -190,59 +195,53 @@ function addBootStep(
 function addCinematicExit(
   tl: Timeline,
   overlay: HTMLElement,
-  bootPanel: HTMLElement,
-  flash: HTMLElement
+  flash: HTMLElement,
+  sequenceSlide: HTMLElement
 ) {
-  tl.add({ duration: 200 });
-
   tl.add(flash, {
-    opacity: [
-      { to: 0.92, duration: 70, ease: "out(4)" },
-      { to: 0, duration: 220, ease: "in(4)" },
-    ],
-  });
+    opacity: [{ to: 1, duration: 55, ease: "in(4)" }, { to: 0, duration: 160, ease: "out(4)" }],
+  }, "+=180");
 
   tl.add(
-    bootPanel,
+    sequenceSlide,
     {
-      scale: [{ to: 1.1, duration: 260, ease: "in(4)" }],
-      opacity: { to: 0, duration: 280, ease: "in(4)" },
-      filter: [{ to: "blur(14px)", duration: 260, ease: "in(4)" }],
+      scale: [{ to: 1.08, duration: 160, ease: "in(3)" }, { to: 1.12, duration: 100, ease: "in(4)" }],
+      opacity: { to: 0, duration: 220, ease: "in(3)" },
+      filter: { to: "blur(10px)", duration: 180, ease: "in(2)" },
     },
-    "<<"
+    "<<+=30"
   );
 
   tl.add(
     overlay,
     {
-      scale: [{ to: 1.14, duration: 300, ease: "in(4)" }],
-      opacity: { to: 0, duration: 340, ease: "in(3)" },
-      filter: [{ to: "blur(18px)", duration: 300, ease: "in(4)" }],
-      backgroundColor: { to: "#000000", duration: 340 },
+      scale: [{ to: 1.06, duration: 200, ease: "in(3)" }, { to: 1.1, duration: 140, ease: "in(4)" }],
+      opacity: { to: 0, duration: 260, ease: "in(3)" },
+      filter: { to: "blur(16px)", duration: 220, ease: "in(2)" },
     },
-    "<<+=40"
+    "<<"
   );
 }
 
 export function LoadingScreen({ onComplete }: LoadingScreenProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
-  const introSlideRef = useRef<HTMLDivElement>(null);
-  const bootPanelRef = useRef<HTMLDivElement>(null);
+  const gridSlideRef = useRef<HTMLDivElement>(null);
+  const sequenceSlideRef = useRef<HTMLDivElement>(null);
+  const flashRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLParagraphElement>(null);
   const subRef = useRef<HTMLParagraphElement>(null);
-  const flashRef = useRef<HTMLDivElement>(null);
   const onCompleteRef = useRef(onComplete);
   onCompleteRef.current = onComplete;
 
   useEffect(() => {
     const overlay = overlayRef.current;
-    const introSlide = introSlideRef.current;
-    const bootPanel = bootPanelRef.current;
+    const gridSlide = gridSlideRef.current;
+    const sequenceSlide = sequenceSlideRef.current;
+    const flash = flashRef.current;
     const mainEl = mainRef.current;
     const subEl = subRef.current;
-    const flash = flashRef.current;
 
-    if (!overlay || !introSlide || !bootPanel || !mainEl || !subEl || !flash) {
+    if (!overlay || !gridSlide || !sequenceSlide || !flash || !mainEl || !subEl) {
       onCompleteRef.current();
       return;
     }
@@ -256,16 +255,19 @@ export function LoadingScreen({ onComplete }: LoadingScreenProps) {
 
     const tl = createTimeline({ autoplay: true });
 
-    addIntroducingGrid(tl, introSlide);
+    addIntroGrid(tl, gridSlide);
 
-    tl.set(bootPanel, { opacity: 1 });
-    exitIntroducingGrid(tl, introSlide);
+    tl.add(
+      sequenceSlide,
+      { opacity: { to: 1, duration: 350 }, scale: { from: 0.96, to: 1, duration: 500 } },
+      "+=120"
+    );
 
     BOOT_SEQUENCE.forEach((step, i) => {
       addBootStep(tl, mainEl, subEl, step, i === 0);
     });
 
-    addCinematicExit(tl, overlay, bootPanel, flash);
+    addCinematicExit(tl, overlay, flash, sequenceSlide);
     tl.call(finish);
 
     const fallback = setTimeout(finish, MAX_BOOT_MS);
@@ -280,39 +282,45 @@ export function LoadingScreen({ onComplete }: LoadingScreenProps) {
   return (
     <div
       ref={overlayRef}
-      className="loading-screen fixed inset-0 z-[10000] flex flex-col items-center justify-center overflow-hidden bg-black select-none"
+      className="loading-screen fixed inset-0 z-[10000] flex items-center justify-center overflow-hidden bg-black select-none"
       aria-live="polite"
       aria-busy="true"
       aria-label="System boot sequence"
     >
       <div className="loading-scanlines pointer-events-none absolute inset-0" aria-hidden />
-      <div ref={flashRef} className="loading-flash pointer-events-none absolute inset-0 bg-white opacity-0" aria-hidden />
+      <div ref={flashRef} className="loading-flash pointer-events-none absolute inset-0 z-20 bg-white opacity-0" aria-hidden />
 
+      {/* Intro grid — symmetric data-bloom */}
       <div
-        ref={introSlideRef}
-        className="loading-intro-slide absolute inset-0 flex flex-col items-center justify-center opacity-0"
+        ref={gridSlideRef}
+        className="loading-grid-slide absolute inset-0 z-10 flex items-center justify-center opacity-0"
       >
-        {INTRO_ROWS.map((count, rowIdx) => (
-          <div key={rowIdx} className="loading-intro-row flex flex-nowrap items-center justify-center">
-            {Array.from({ length: count }).map((_, colIdx) => (
-              <p
-                key={colIdx}
-                className={
-                  rowIdx === INTRO_CENTER_ROW && colIdx === Math.floor(count / 2)
-                    ? "center"
-                    : undefined
-                }
-              >
-                Introducing
-              </p>
-            ))}
-          </div>
-        ))}
+        <div className="loading-grid">
+          {GRID_ROWS.map((count, rowIndex) => {
+            const centerRow = rowIndex === 3;
+            const centerIndex = centerRow ? Math.floor(count / 2) : -1;
+            return (
+              <div key={rowIndex} className="loading-row">
+                {Array.from({ length: count }).map((_, colIndex) => (
+                  <p
+                    key={colIndex}
+                    className={
+                      colIndex === centerIndex ? "loading-center loading-cell" : "loading-cell"
+                    }
+                  >
+                    Loading
+                  </p>
+                ))}
+              </div>
+            );
+          })}
+        </div>
       </div>
 
+      {/* Boot log sequence */}
       <div
-        ref={bootPanelRef}
-        className="loading-boot-panel relative z-10 flex flex-col items-center px-6 text-center opacity-0"
+        ref={sequenceSlideRef}
+        className="loading-sequence relative z-10 flex flex-col items-center px-6 text-center opacity-0"
       >
         <p
           ref={mainRef}
