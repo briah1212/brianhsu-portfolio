@@ -92,15 +92,15 @@ export function TerminalApp() {
         {history.map((entry, i) => (
           <div key={i}>
             {entry.input && (
-              <p>
-                <span className="text-green-600">brian@portfolio</span>
-                <span className="text-foreground/40">:</span>
+              <p className="text-green-400">
+                <span className="text-green-500">brian@portfolio</span>
+                <span className="text-neutral-500">:</span>
                 <span className="text-blue-400">~</span>
-                <span className="text-foreground/40">$ </span>
+                <span className="text-neutral-500">$ </span>
                 {entry.input}
               </p>
             )}
-            <pre className="whitespace-pre-wrap text-foreground/70">
+            <pre className="whitespace-pre-wrap text-neutral-300">
               {entry.output}
             </pre>
           </div>
@@ -108,10 +108,10 @@ export function TerminalApp() {
         <div ref={bottomRef} />
       </div>
       <form onSubmit={handleSubmit} className="flex items-center border-t border-white/5 px-4 py-2">
-        <span className="text-green-600 shrink-0">brian@portfolio</span>
-        <span className="text-foreground/40">:</span>
+        <span className="shrink-0 text-green-500">brian@portfolio</span>
+        <span className="text-neutral-500">:</span>
         <span className="text-blue-400">~</span>
-        <span className="text-foreground/40">$&nbsp;</span>
+        <span className="text-neutral-500">$&nbsp;</span>
         <input
           ref={inputRef}
           value={input}
