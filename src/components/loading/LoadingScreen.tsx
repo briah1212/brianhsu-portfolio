@@ -6,6 +6,7 @@ import type { Timeline } from "animejs";
 
 const CURSOR = "░▒▓█";
 const SCRAMBLE_CHARS = "01░▒▓█#@";
+const MAX_BOOT_MS = 18000;
 
 const BOOT_SEQUENCE = [
   { main: "Loading", sub: "", hold: 500 },
@@ -100,31 +101,34 @@ function addBootStep(
     );
   }
 
-  tl.add(mainEl, { duration: step.hold });
+  tl.add({ duration: step.hold });
 }
 
 export function LoadingScreen({ onComplete }: LoadingScreenProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLParagraphElement>(null);
   const subRef = useRef<HTMLParagraphElement>(null);
-  const hasRun = useRef(false);
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
 
   useEffect(() => {
-    if (hasRun.current) return;
-    hasRun.current = true;
-
     const overlay = overlayRef.current;
     const mainEl = mainRef.current;
     const subEl = subRef.current;
+
     if (!overlay || !mainEl || !subEl) {
-      onComplete();
+      onCompleteRef.current();
       return;
     }
 
-    const tl = createTimeline({
-      autoplay: true,
-      onComplete: () => onComplete(),
-    });
+    let finished = false;
+    const finish = () => {
+      if (finished) return;
+      finished = true;
+      onCompleteRef.current();
+    };
+
+    const tl = createTimeline({ autoplay: true });
 
     BOOT_SEQUENCE.forEach((step, i) => {
       addBootStep(tl, mainEl, subEl, step, i === 0);
@@ -135,15 +139,25 @@ export function LoadingScreen({ onComplete }: LoadingScreenProps) {
       filter: { to: "blur(8px)", duration: 800, ease: "inOut(2)" },
     });
 
-    tl.add(mainEl, {
-      opacity: { to: 0, duration: 500, ease: "out(2)" },
-      scale: { to: 1.04, duration: 500, ease: "out(2)" },
-    }, "<<");
+    tl.add(
+      mainEl,
+      {
+        opacity: { to: 0, duration: 500, ease: "out(2)" },
+        scale: { to: 1.04, duration: 500, ease: "out(2)" },
+      },
+      "<<"
+    );
+
+    tl.call(finish);
+
+    const fallback = setTimeout(finish, MAX_BOOT_MS);
 
     return () => {
+      clearTimeout(fallback);
+      tl.pause();
       tl.revert();
     };
-  }, [onComplete]);
+  }, []);
 
   return (
     <div
