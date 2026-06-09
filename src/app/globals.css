@@ -261,7 +261,8 @@ body {
   border-radius: 12px 12px 0 0;
 }
 
-.window .flex-1 {
+/* Content pane only — avoid styling title-bar flex children */
+.window > .flex-1 {
   background-color: var(--window-bg);
 }
 
