@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Wallpaper } from "./Wallpaper";
 import { MenuBar } from "./MenuBar";
 import { Dock } from "./Dock";
@@ -9,16 +9,20 @@ import { LoadingScreen } from "@/components/loading/LoadingScreen";
 import { useWindowStore } from "@/store/windowStore";
 
 export function Desktop() {
-  const desktopRef = useRef<HTMLDivElement>(null);
-  const [showLoader, setShowLoader] = useState(true);
+  const [showLoading, setShowLoading] = useState(true);
+  const [desktopReady, setDesktopReady] = useState(false);
   const theme = useWindowStore((s) => s.theme);
   const activeWindowId = useWindowStore((s) => s.activeWindowId);
   const closeWindow = useWindowStore((s) => s.closeWindow);
   const windows = useWindowStore((s) => s.windows);
   const openApp = useWindowStore((s) => s.openApp);
 
-  const handleBootComplete = useCallback(() => {
-    setShowLoader(false);
+  const handleRevealDesktop = useCallback(() => {
+    setDesktopReady(true);
+  }, []);
+
+  const handleLoadingExit = useCallback(() => {
+    setShowLoading(false);
   }, []);
 
   useEffect(() => {
@@ -26,13 +30,13 @@ export function Desktop() {
   }, [theme]);
 
   useEffect(() => {
-    if (showLoader) return;
-    const timer = setTimeout(() => openApp("home"), 350);
+    if (!desktopReady) return;
+    const timer = setTimeout(() => openApp("home"), 300);
     return () => clearTimeout(timer);
-  }, [showLoader, openApp]);
+  }, [desktopReady, openApp]);
 
   useEffect(() => {
-    if (showLoader) return;
+    if (!desktopReady) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "w") {
@@ -57,29 +61,22 @@ export function Desktop() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [showLoader, activeWindowId, closeWindow, windows]);
+  }, [desktopReady, activeWindowId, closeWindow, windows]);
 
   return (
     <>
-      <div
-        ref={desktopRef}
-        className="desktop relative h-screen w-screen overflow-hidden"
-        style={{
-          opacity: 0,
-          transform: "scale(0.68)",
-          filter: "blur(20px)",
-          transformOrigin: "center center",
-        }}
-      >
-        <Wallpaper />
-        <MenuBar />
-        <WindowManager />
-        <Dock />
-      </div>
-      {showLoader && (
+      {desktopReady && (
+        <div className="desktop relative h-screen w-screen overflow-hidden">
+          <Wallpaper />
+          <MenuBar />
+          <WindowManager />
+          <Dock />
+        </div>
+      )}
+      {showLoading && (
         <LoadingScreen
-          desktopRef={desktopRef}
-          onComplete={handleBootComplete}
+          onRevealDesktop={handleRevealDesktop}
+          onExitComplete={handleLoadingExit}
         />
       )}
     </>

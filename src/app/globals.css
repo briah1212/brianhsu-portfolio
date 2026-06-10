@@ -317,55 +317,6 @@ body {
 }
 
 /* Matrix boot loading screen */
-.loading-slide {
-  opacity: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.35rem;
-}
-
-.loading-row {
-  display: flex;
-  justify-content: center;
-  flex-wrap: nowrap;
-  gap: 1.25ch;
-}
-
-.loading-grid-p {
-  margin: 0;
-  font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: clamp(1rem, 2.5vw, 1.6rem);
-  font-weight: 500;
-  line-height: 1;
-  letter-spacing: 0.12em;
-  color: #00cc55;
-  white-space: nowrap;
-  text-shadow: 0 0 10px rgba(0, 255, 102, 0.35);
-}
-
-.loading-grid-p.center {
-  font-size: clamp(1.15rem, 3vw, 1.85rem);
-  color: #a8ffcc;
-  text-shadow:
-    0 0 12px rgba(0, 255, 102, 0.55),
-    0 0 24px rgba(0, 255, 102, 0.25);
-}
-
-.loading-boot {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.loading-flash {
-  mix-blend-mode: normal;
-}
-
 .loading-line {
   text-shadow:
     0 0 8px rgba(0, 255, 102, 0.55),
@@ -374,6 +325,10 @@ body {
 
 .loading-sub {
   text-shadow: 0 0 6px rgba(0, 204, 85, 0.35);
+}
+
+.loading-flash {
+  will-change: opacity;
 }
 
 .loading-scanlines {

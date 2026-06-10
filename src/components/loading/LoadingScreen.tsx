@@ -6,20 +6,22 @@ import type { Timeline } from "animejs";
 
 const CURSOR = "░▒▓█";
 const SCRAMBLE_CHARS = "01░▒▓█#@";
-const MAX_BOOT_MS = 24000;
-const STEP_GAP_MS = 140;
+const MAX_BOOT_MS = 22000;
+const STEP_GAP_MS = 220;
 
 const BOOT_SEQUENCE = [
-  { main: "Loading", sub: "", hold: 720 },
-  { main: "Initializing desktop environment", sub: "kernel: bh-desktop v1.0", hold: 680 },
-  { main: "Loading window system", sub: "compositor: active", hold: 640 },
-  { main: "Mounting user interface", sub: "dock: ready", hold: 640 },
-  { main: "Jumping into Brian Hsu's site", sub: "access granted", hold: 2200 },
+  { main: "Loading", sub: "", hold: 650 },
+  { main: "Initializing desktop environment", sub: "kernel: bh-desktop v1.0", hold: 580 },
+  { main: "Loading window system", sub: "compositor: active", hold: 550 },
+  { main: "Mounting user interface", sub: "dock: ready", hold: 550 },
+  { main: "Jumping into Brian Hsu's site", sub: "access granted", hold: 1800 },
 ] as const;
 
 interface LoadingScreenProps {
-  desktopRef: React.RefObject<HTMLDivElement | null>;
-  onComplete: () => void;
+  /** Mount desktop UI underneath before the overlay finishes exiting */
+  onRevealDesktop: () => void;
+  /** Remove loading screen from the tree */
+  onExitComplete: () => void;
 }
 
 function scrambleIn(text: string, duration = 900) {
@@ -28,20 +30,22 @@ function scrambleIn(text: string, duration = 900) {
     from: "center",
     duration,
     cursor: CURSOR,
-    perturbation: 0.32,
+    perturbation: 0.28,
     chars: SCRAMBLE_CHARS,
+    settleDuration: 480,
     ease: "inOut(2)",
   });
 }
 
-function scrambleOut() {
+function scrambleOut(duration = 420) {
   return scrambleText({
     text: "",
     override: false,
     from: "center",
     reversed: true,
-    duration: 420,
+    duration,
     cursor: "░▒▓",
+    settleDuration: 280,
     ease: "outQuad",
   });
 }
@@ -54,7 +58,6 @@ function addBootStep(
   isFirst: boolean
 ) {
   if (!isFirst) {
-    tl.add({ duration: STEP_GAP_MS });
     tl.add(mainEl, { innerHTML: scrambleOut() });
     tl.add(
       subEl,
@@ -66,35 +69,38 @@ function addBootStep(
           reversed: true,
           duration: 300,
           cursor: "░▒",
+          settleDuration: 200,
         }),
       },
       "<<"
     );
+    tl.add({ duration: STEP_GAP_MS });
   }
 
   tl.add(
     mainEl,
     {
       ...(isFirst && {
-        opacity: { from: 0, to: 1, duration: 320 },
-        scale: [{ from: 0.9, to: 1, duration: 800, ease: "out(3)" }],
+        opacity: { from: 0, to: 1, duration: 280 },
+        scale: [{ from: 0.9, to: 1, duration: 750, ease: "out(3)" }],
       }),
-      innerHTML: scrambleIn(step.main, step.main.length > 22 ? 1150 : 880),
+      innerHTML: scrambleIn(step.main, step.main.length > 22 ? 1200 : 900),
     },
-    isFirst ? 0 : "+=80"
+    isFirst ? 0 : undefined
   );
 
   if (step.sub) {
     tl.add(
       subEl,
       {
-        opacity: { to: 1, duration: 220 },
+        opacity: { to: 1, duration: 200 },
         innerHTML: scrambleText({
           text: step.sub,
           from: "left",
           duration: 620,
           cursor: "░▒▓",
-          perturbation: 0.22,
+          perturbation: 0.18,
+          settleDuration: 420,
           ease: "inOut(2)",
         }),
       },
@@ -105,32 +111,95 @@ function addBootStep(
   tl.add({ duration: step.hold });
 }
 
-export function LoadingScreen({ desktopRef, onComplete }: LoadingScreenProps) {
+function addCinematicExit(
+  tl: Timeline,
+  overlay: HTMLElement,
+  content: HTMLElement,
+  flash: HTMLElement,
+  onRevealDesktop: () => void,
+  onExitComplete: () => void
+) {
+  let revealed = false;
+  let exited = false;
+
+  const revealDesktop = () => {
+    if (revealed) return;
+    revealed = true;
+    onRevealDesktop();
+  };
+
+  const exitComplete = () => {
+    if (exited) return;
+    exited = true;
+    onExitComplete();
+  };
+
+  // Beat after final line resolves
+  tl.add({ duration: 350 });
+
+  // White flash — system unlock burst
+  tl.add(flash, {
+    opacity: [{ to: 0.72, duration: 120, ease: "out(2)" }, { to: 0, duration: 220, ease: "inOutExpo" }],
+  });
+
+  // Pull into screen — content zooms forward
+  tl.add(
+    content,
+    {
+      scale: [{ to: 1.1, duration: 520, ease: "inOutExpo" }],
+      opacity: { to: 0, duration: 480, ease: "inOut(2)" },
+      filter: { to: "blur(6px)", duration: 480, ease: "inOut(2)" },
+    },
+    "<<+=40"
+  );
+
+  // Mount desktop underneath at flash peak
+  tl.call(revealDesktop, "<<+=80");
+
+  // Overlay dissolves — camera passes through
+  tl.add(
+    overlay,
+    {
+      scale: { to: 1.06, duration: 650, ease: "inOutExpo" },
+      opacity: { to: 0, duration: 650, ease: "inOutExpo" },
+      filter: { to: "blur(12px)", duration: 650, ease: "inOut(2)" },
+    },
+    "<<"
+  );
+
+  tl.call(exitComplete);
+}
+
+export function LoadingScreen({ onRevealDesktop, onExitComplete }: LoadingScreenProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
-  const flashRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  const flashRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLParagraphElement>(null);
   const subRef = useRef<HTMLParagraphElement>(null);
-  const onCompleteRef = useRef(onComplete);
-  onCompleteRef.current = onComplete;
+  const onRevealRef = useRef(onRevealDesktop);
+  const onExitRef = useRef(onExitComplete);
+  onRevealRef.current = onRevealDesktop;
+  onExitRef.current = onExitComplete;
 
   useEffect(() => {
     const overlay = overlayRef.current;
-    const flash = flashRef.current;
     const content = contentRef.current;
+    const flash = flashRef.current;
     const mainEl = mainRef.current;
     const subEl = subRef.current;
 
-    if (!overlay || !flash || !content || !mainEl || !subEl) {
-      onCompleteRef.current();
+    if (!overlay || !content || !flash || !mainEl || !subEl) {
+      onRevealRef.current();
+      onExitRef.current();
       return;
     }
 
     let finished = false;
-    const finish = () => {
+    const forceExit = () => {
       if (finished) return;
       finished = true;
-      onCompleteRef.current();
+      onRevealRef.current();
+      onExitRef.current();
     };
 
     const tl = createTimeline({ autoplay: true });
@@ -139,100 +208,47 @@ export function LoadingScreen({ desktopRef, onComplete }: LoadingScreenProps) {
       addBootStep(tl, mainEl, subEl, step, i === 0);
     });
 
-    // Pre-climax pause
-    tl.add({ duration: 500 });
-
-    // Scramble out final line before entry
-    tl.add(mainEl, { innerHTML: scrambleOut() });
-    tl.add(
-      subEl,
-      {
-        innerHTML: scrambleText({
-          text: "",
-          override: false,
-          from: "center",
-          reversed: true,
-          duration: 280,
-          cursor: "░▒",
-        }),
-      },
-      "<<"
-    );
-
-    tl.add({ duration: 200 });
-
-    // White flash — sole palette break
-    tl.add(flash, {
-      opacity: [{ from: 0, to: 1, duration: 90 }, { to: 0, duration: 280 }],
-      ease: "linear",
-    });
-
-    tl.add({ duration: 80 });
-
-    // Pull-in: desktop zooms from center through the screen
-    const desktop = desktopRef.current;
-    if (desktop) {
-      tl.add(desktop, {
-        opacity: { from: 0, to: 1, duration: 1100, ease: "out(3)" },
-        scale: [
-          { from: 0.68, to: 1.06, duration: 1300, ease: "inOut(4)" },
-          { to: 1, duration: 400, ease: "out(2)" },
-        ],
-        filter: [
-          { from: "blur(20px)", to: "blur(4px)", duration: 900, ease: "out(3)" },
-          { to: "blur(0px)", duration: 500, ease: "out(2)" },
-        ],
-      });
-    }
-
-    // Overlay warps outward as we're drawn in
-    tl.add(
+    addCinematicExit(
+      tl,
       overlay,
-      {
-        opacity: { to: 0, duration: 1000, ease: "in(2)" },
-        scale: { to: 1.22, duration: 1200, ease: "in(3)" },
-        filter: { to: "blur(14px)", duration: 900, ease: "in(2)" },
-      },
-      "<<+=120"
-    );
-
-    tl.add(
       content,
-      {
-        opacity: { to: 0, duration: 400, ease: "out(2)" },
-        scale: { to: 1.35, duration: 700, ease: "in(3)" },
-      },
-      "<<"
+      flash,
+      () => onRevealRef.current(),
+      () => {
+        if (finished) return;
+        finished = true;
+        onExitRef.current();
+      }
     );
 
-    tl.call(finish);
-
-    const fallback = setTimeout(finish, MAX_BOOT_MS);
+    const fallback = setTimeout(forceExit, MAX_BOOT_MS);
 
     return () => {
       clearTimeout(fallback);
       tl.pause();
       tl.revert();
     };
-  }, [desktopRef]);
+  }, []);
 
   return (
     <div
       ref={overlayRef}
       className="loading-screen fixed inset-0 z-[10000] flex flex-col items-center justify-center overflow-hidden bg-black select-none"
+      style={{ transformOrigin: "center center" }}
       aria-live="polite"
       aria-busy="true"
       aria-label="System boot sequence"
     >
-      <div className="loading-scanlines pointer-events-none absolute inset-0" aria-hidden />
       <div
         ref={flashRef}
-        className="pointer-events-none absolute inset-0 z-20 bg-white opacity-0"
+        className="loading-flash pointer-events-none absolute inset-0 z-20 bg-white opacity-0"
         aria-hidden
       />
+      <div className="loading-scanlines pointer-events-none absolute inset-0" aria-hidden />
       <div
         ref={contentRef}
         className="relative z-10 flex flex-col items-center px-6 text-center"
+        style={{ transformOrigin: "center center" }}
       >
         <p
           ref={mainRef}
