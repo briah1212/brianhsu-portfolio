@@ -31,7 +31,10 @@ export function Desktop() {
 
   useEffect(() => {
     if (!desktopReady) return;
-    const timer = setTimeout(() => openApp("home"), 300);
+    const timer = setTimeout(() => {
+      openApp("home");
+      openApp("about");
+    }, 300);
     return () => clearTimeout(timer);
   }, [desktopReady, openApp]);
 

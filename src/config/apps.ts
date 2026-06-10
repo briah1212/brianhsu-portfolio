@@ -7,6 +7,7 @@ export const APPS: AppConfig[] = [
     icon: "🏠",
     color: "#5AC8FA",
     defaultSize: { width: 520, height: 420 },
+    defaultPosition: { x: 280, y: 130 },
   },
   {
     id: "about",
@@ -14,6 +15,7 @@ export const APPS: AppConfig[] = [
     icon: "👤",
     color: "#AF52DE",
     defaultSize: { width: 580, height: 520 },
+    defaultPosition: { x: 820, y: 95 },
   },
   {
     id: "projects",
