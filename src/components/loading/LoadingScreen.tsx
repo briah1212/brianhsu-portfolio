@@ -10,10 +10,8 @@ const MAX_BOOT_MS = 22000;
 const STEP_GAP_MS = 220;
 
 const BOOT_SEQUENCE = [
-  { main: "Loading", sub: "", hold: 650 },
   { main: "Initializing desktop environment", sub: "kernel: bh-desktop v1.0", hold: 580 },
   { main: "Loading window system", sub: "compositor: active", hold: 550 },
-  { main: "Mounting user interface", sub: "dock: ready", hold: 550 },
   { main: "Jumping into Brian Hsu's site", sub: "access granted", hold: 1800 },
 ] as const;
 
