@@ -6,14 +6,14 @@ import { FileDown, Globe, Link2, Mail } from "lucide-react";
 const links = [
   {
     label: "Email",
-    value: "brianhsu@umich.edu",
-    href: "mailto:brianhsu@umich.edu",
+    value: "hsubrian1212@gmail.com",
+    href: "mailto:hsubrian1212@gmail.com",
     icon: Mail,
   },
   {
     label: "LinkedIn",
-    value: "linkedin.com/in/brianhsu",
-    href: "https://linkedin.com/in/brianhsu",
+    value: "linkedin.com/in/brianhsuu",
+    href: "https://linkedin.com/in/brianhsuu",
     icon: Link2,
   },
   {
@@ -57,7 +57,7 @@ export function ContactApp() {
         </div>
 
         <a
-          href="/resume.pdf"
+          href="/Resume.pdf"
           className="mt-4 flex w-full items-center justify-center gap-2 py-2 text-xs font-medium text-foreground/55 transition-colors hover:text-sky-400"
         >
           <FileDown size={14} />

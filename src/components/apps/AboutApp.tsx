@@ -1,35 +1,50 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { FileDown } from "lucide-react";
 
 const experiences = [
   {
-    role: "Software Engineering Intern",
+    role: "Supercomputing Engineer",
+    org: "Los Alamos National Laboratory",
+    period: "May 2026 – Aug 2026",
+    detail:
+      "Building HPC clusters from scratch with Rocky Linux, iPXE, and SLURM — InfiniBand/Ethernet networking, automated node provisioning, and benchmarking 400Gb/s+ data transfers for large-scale workloads.",
+  },
+  {
+    role: "Scientific Computing Engineer",
+    org: "Memorial Sloan Kettering Cancer Center",
+    period: "Jun 2025 – Sep 2025",
+    detail:
+      "Shipped an Open OnDemand dashboard (Ruby on Rails) for MSK's HPC cluster, cutting new-user support tickets by 20%. Built real-time SLURM monitoring with Pandas + Chart.js and automated usage reporting with Python, Bash, and Ansible.",
+  },
+  {
+    role: "Data Analytics Intern",
     org: "Lyft",
-    period: "Summer 2025",
-    detail: "Maps & routing — ETA prediction, feature engineering, production ML pipelines.",
-  },
-  {
-    role: "Research Assistant",
-    org: "Cognitive Science Lab",
-    period: "2024 – Present",
-    detail: "HCI instrumentation, cognitive load measurement, behavioral data analysis.",
-  },
-  {
-    role: "Course Staff",
-    org: "EECS 281 / EECS 482",
-    period: "2024 – Present",
-    detail: "Algorithms and operating systems — projects, grading, office hours.",
+    period: "Jun 2024 – Aug 2024",
+    detail:
+      "Built SQL pipelines analyzing 44k+ users and Bike Angels ride data to detect fraud and station-flipping abuse. Proposed scoring changes that reduced operational costs by 7% and negative user costs by 12%.",
   },
 ];
 
-const interests = [
+const focusAreas = [
+  { label: "HPC & Supercomputing", emoji: "🖥️" },
   { label: "Distributed Systems", emoji: "🔗" },
+  { label: "Scientific Computing", emoji: "🔬" },
+  { label: "Systems Programming", emoji: "⚡" },
   { label: "Machine Learning", emoji: "🧠" },
-  { label: "Human-Computer Interaction", emoji: "👁️" },
-  { label: "Concurrent Programming", emoji: "⚡" },
-  { label: "Cognitive Modeling", emoji: "🔬" },
-  { label: "Developer Tools", emoji: "🛠️" },
+  { label: "Cognitive Science", emoji: "👁️" },
+];
+
+const skills = [
+  "Python",
+  "C/C++",
+  "Linux",
+  "AWS",
+  "Docker",
+  "SLURM",
+  "React",
+  "PyTorch",
 ];
 
 export function AboutApp() {
@@ -42,17 +57,18 @@ export function AboutApp() {
       >
         <h2 className="text-lg font-semibold">About Me</h2>
         <p className="mt-2 text-sm leading-relaxed text-foreground/60">
-          I&apos;m a student at the University of Michigan studying Computer
-          Science and Cognitive Science. I&apos;m drawn to problems that sit at
-          the boundary of rigorous engineering and how people actually think and
-          behave — building systems that are fast, correct, and humane.
+          I&apos;m a Computer Science and Cognitive Science student at the
+          University of Michigan (Computation track, GPA 3.9). I build
+          high-performance systems — from HPC clusters and scientific computing
+          platforms to data pipelines and ML research tooling — with an eye for
+          how software supports real human and scientific workflows.
         </p>
 
         <h3 className="mt-6 text-sm font-semibold text-foreground/80">
-          Interests
+          Focus Areas
         </h3>
-        <div className="mt-2 flex flex-wrap gap-2">
-          {interests.map((item) => (
+        <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1.5">
+          {focusAreas.map((item) => (
             <span
               key={item.label}
               className="inline-flex items-center gap-1.5 text-xs text-foreground/60"
@@ -68,7 +84,7 @@ export function AboutApp() {
         </h3>
         <div className="mt-3 divide-y divide-foreground/8">
           {experiences.map((exp) => (
-            <div key={exp.org} className="py-3 first:pt-0 last:pb-0">
+            <div key={`${exp.org}-${exp.period}`} className="py-3 first:pt-0 last:pb-0">
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <p className="text-sm font-medium">{exp.role}</p>
@@ -89,12 +105,31 @@ export function AboutApp() {
           Education
         </h3>
         <p className="mt-2 text-sm text-foreground/60">
-          B.S.E. Computer Science &amp; B.A. Cognitive Science
+          B.S. Computer Science &amp; B.S. Cognitive Science
+          <br />
+          <span className="text-foreground/50">Computation track · GPA 3.9/4.0</span>
           <br />
           <span className="text-foreground/40">
             University of Michigan, Ann Arbor
           </span>
         </p>
+
+        <h3 className="mt-6 text-sm font-semibold text-foreground/80">
+          Skills
+        </h3>
+        <p className="mt-2 text-xs leading-relaxed text-foreground/55">
+          {skills.join(" · ")}
+        </p>
+
+        <a
+          href="/Resume.pdf"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-6 inline-flex items-center gap-2 text-xs font-medium text-foreground/55 transition-colors hover:text-sky-400"
+        >
+          <FileDown size={14} />
+          View Resume
+        </a>
       </motion.div>
     </div>
   );
