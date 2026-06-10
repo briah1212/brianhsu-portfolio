@@ -66,7 +66,7 @@ export function Desktop() {
   return (
     <motion.div
       className="desktop relative h-screen w-screen overflow-hidden"
-      initial={{ opacity: 0, scale: 1.06, filter: "blur(6px)" }}
+      initial={{ opacity: 0, scale: 1.06, filter: "blur(8px)" }}
       animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
       transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
     >

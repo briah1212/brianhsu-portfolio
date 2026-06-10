@@ -317,39 +317,53 @@ body {
 }
 
 /* Matrix boot loading screen */
-.loading-grid {
+.loading-slide {
+  opacity: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 0.35rem;
 }
 
 .loading-row {
   display: flex;
   justify-content: center;
   flex-wrap: nowrap;
+  gap: 1.25ch;
 }
 
-.loading-cell {
-  flex-shrink: 0;
-  margin: 0.45ch;
+.loading-grid-p {
+  margin: 0;
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: clamp(1rem, 2.2vw, 1.45rem);
+  font-size: clamp(1rem, 2.5vw, 1.6rem);
   font-weight: 500;
   line-height: 1;
   letter-spacing: 0.12em;
-  white-space: nowrap;
   color: #00cc55;
-  opacity: 0;
-  text-shadow: 0 0 6px rgba(0, 255, 102, 0.35);
+  white-space: nowrap;
+  text-shadow: 0 0 10px rgba(0, 255, 102, 0.35);
 }
 
-.loading-center {
-  font-size: clamp(1.35rem, 3vw, 2rem);
-  color: #00ff66;
+.loading-grid-p.center {
+  font-size: clamp(1.15rem, 3vw, 1.85rem);
+  color: #a8ffcc;
   text-shadow:
-    0 0 10px rgba(0, 255, 102, 0.65),
-    0 0 24px rgba(0, 255, 102, 0.3);
+    0 0 12px rgba(0, 255, 102, 0.55),
+    0 0 24px rgba(0, 255, 102, 0.25);
+}
+
+.loading-boot {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-flash {
+  mix-blend-mode: normal;
 }
 
 .loading-line {
@@ -360,10 +374,6 @@ body {
 
 .loading-sub {
   text-shadow: 0 0 6px rgba(0, 204, 85, 0.35);
-}
-
-.loading-flash {
-  mix-blend-mode: screen;
 }
 
 .loading-scanlines {
