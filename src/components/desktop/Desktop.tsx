@@ -1,7 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Wallpaper } from "./Wallpaper";
 import { MenuBar } from "./MenuBar";
 import { Dock } from "./Dock";
@@ -10,7 +9,8 @@ import { LoadingScreen } from "@/components/loading/LoadingScreen";
 import { useWindowStore } from "@/store/windowStore";
 
 export function Desktop() {
-  const [isBooting, setIsBooting] = useState(true);
+  const desktopRef = useRef<HTMLDivElement>(null);
+  const [showLoader, setShowLoader] = useState(true);
   const theme = useWindowStore((s) => s.theme);
   const activeWindowId = useWindowStore((s) => s.activeWindowId);
   const closeWindow = useWindowStore((s) => s.closeWindow);
@@ -18,7 +18,7 @@ export function Desktop() {
   const openApp = useWindowStore((s) => s.openApp);
 
   const handleBootComplete = useCallback(() => {
-    setIsBooting(false);
+    setShowLoader(false);
   }, []);
 
   useEffect(() => {
@@ -26,13 +26,13 @@ export function Desktop() {
   }, [theme]);
 
   useEffect(() => {
-    if (isBooting) return;
-    const timer = setTimeout(() => openApp("home"), 400);
+    if (showLoader) return;
+    const timer = setTimeout(() => openApp("home"), 350);
     return () => clearTimeout(timer);
-  }, [isBooting, openApp]);
+  }, [showLoader, openApp]);
 
   useEffect(() => {
-    if (isBooting) return;
+    if (showLoader) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "w") {
@@ -57,23 +57,31 @@ export function Desktop() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isBooting, activeWindowId, closeWindow, windows]);
-
-  if (isBooting) {
-    return <LoadingScreen onComplete={handleBootComplete} />;
-  }
+  }, [showLoader, activeWindowId, closeWindow, windows]);
 
   return (
-    <motion.div
-      className="desktop relative h-screen w-screen overflow-hidden"
-      initial={{ opacity: 0, scale: 1.06, filter: "blur(8px)" }}
-      animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-      transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-    >
-      <Wallpaper />
-      <MenuBar />
-      <WindowManager />
-      <Dock />
-    </motion.div>
+    <>
+      <div
+        ref={desktopRef}
+        className="desktop relative h-screen w-screen overflow-hidden"
+        style={{
+          opacity: 0,
+          transform: "scale(0.68)",
+          filter: "blur(20px)",
+          transformOrigin: "center center",
+        }}
+      >
+        <Wallpaper />
+        <MenuBar />
+        <WindowManager />
+        <Dock />
+      </div>
+      {showLoader && (
+        <LoadingScreen
+          desktopRef={desktopRef}
+          onComplete={handleBootComplete}
+        />
+      )}
+    </>
   );
 }

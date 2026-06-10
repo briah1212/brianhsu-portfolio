@@ -1,124 +1,49 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { createTimeline, scrambleText, stagger } from "animejs";
+import { createTimeline, scrambleText } from "animejs";
 import type { Timeline } from "animejs";
 
 const CURSOR = "░▒▓█";
 const SCRAMBLE_CHARS = "01░▒▓█#@";
-const MAX_BOOT_MS = 28000;
-
-/** Diamond grid row counts — matches reference layout */
-const GRID_ROWS = [2, 3, 4, 5, 4, 3, 2];
-const CENTER_ROW_INDEX = 3;
+const MAX_BOOT_MS = 24000;
+const STEP_GAP_MS = 140;
 
 const BOOT_SEQUENCE = [
-  { main: "Initializing desktop environment", sub: "kernel: bh-desktop v1.0", hold: 650 },
-  { main: "Loading window system", sub: "compositor: active", hold: 600 },
-  { main: "Mounting user interface", sub: "dock: ready", hold: 600 },
-  { main: "Jumping into Brian Hsu's site", sub: "access granted", hold: 2000 },
+  { main: "Loading", sub: "", hold: 720 },
+  { main: "Initializing desktop environment", sub: "kernel: bh-desktop v1.0", hold: 680 },
+  { main: "Loading window system", sub: "compositor: active", hold: 640 },
+  { main: "Mounting user interface", sub: "dock: ready", hold: 640 },
+  { main: "Jumping into Brian Hsu's site", sub: "access granted", hold: 2200 },
 ] as const;
 
 interface LoadingScreenProps {
+  desktopRef: React.RefObject<HTMLDivElement | null>;
   onComplete: () => void;
 }
 
-function scrambleIn(text: string, duration = 850) {
+function scrambleIn(text: string, duration = 900) {
   return scrambleText({
     text,
     from: "center",
     duration,
     cursor: CURSOR,
-    perturbation: 0.3,
+    perturbation: 0.32,
     chars: SCRAMBLE_CHARS,
     ease: "inOut(2)",
   });
 }
 
-function scrambleOut(duration = 420) {
+function scrambleOut() {
   return scrambleText({
     text: "",
     override: false,
     from: "center",
     reversed: true,
-    duration,
+    duration: 420,
     cursor: "░▒▓",
     ease: "outQuad",
   });
-}
-
-function addGridIntro(
-  tl: Timeline,
-  slide: HTMLElement,
-  center: HTMLElement,
-  outer: HTMLElement[]
-) {
-  tl.add(slide, {
-    opacity: { to: 1, duration: 250, ease: "linear" },
-    scale: [{ from: 0.75, to: 1, duration: 1500, ease: "inOut(3.5)" }],
-    ease: "inOut(3)",
-  });
-
-  tl.add(
-    center,
-    {
-      scale: { from: 3, to: 1, duration: 1500, ease: "inOut(3.5)" },
-      color: { from: "#a8ffcc", to: "#00ff66" },
-      innerHTML: scrambleText({
-        override: " ",
-        ease: "inQuad",
-        duration: 600,
-        from: "center",
-        cursor: CURSOR,
-      }),
-    },
-    "<<"
-  );
-
-  if (outer.length > 0) {
-    tl.add(
-      outer,
-      {
-        scale: { from: 0.75, to: 1, duration: 1200, ease: "out(3)" },
-        color: { to: "#00cc55" },
-        innerHTML: scrambleText({
-          override: " ",
-          from: "center",
-          duration: 650,
-          revealDelay: 300,
-          cursor: "░▒▓",
-          perturbation: 0.25,
-        }),
-      },
-      stagger([320, 950], { grid: true, from: "center", ease: "out(3)", start: "<<" })
-    );
-
-    tl.add(
-      [...outer, center],
-      {
-        scale: { to: 0.85, duration: 700, ease: "in(3)" },
-        innerHTML: scrambleText({
-          text: "",
-          override: false,
-          from: "center",
-          ease: "outQuad",
-          reversed: true,
-          duration: 900,
-          cursor: "░▒▓",
-        }),
-      },
-      "<+=180"
-    );
-  }
-
-  tl.add(
-    slide,
-    {
-      opacity: { to: 0, duration: 450, ease: "inOut(2)" },
-      scale: { to: 1.06, duration: 450, ease: "inOut(2)" },
-    },
-    "+=120"
-  );
 }
 
 function addBootStep(
@@ -129,7 +54,8 @@ function addBootStep(
   isFirst: boolean
 ) {
   if (!isFirst) {
-    tl.add(mainEl, { innerHTML: scrambleOut(450) });
+    tl.add({ duration: STEP_GAP_MS });
+    tl.add(mainEl, { innerHTML: scrambleOut() });
     tl.add(
       subEl,
       {
@@ -144,88 +70,45 @@ function addBootStep(
       },
       "<<"
     );
-    tl.add({ duration: 120 });
   }
 
   tl.add(
     mainEl,
     {
       ...(isFirst && {
-        opacity: { from: 0, to: 1, duration: 280 },
-        scale: [{ from: 0.94, to: 1, duration: 700, ease: "out(3)" }],
+        opacity: { from: 0, to: 1, duration: 320 },
+        scale: [{ from: 0.9, to: 1, duration: 800, ease: "out(3)" }],
       }),
-      innerHTML: scrambleIn(step.main, step.main.length > 22 ? 1100 : 800),
+      innerHTML: scrambleIn(step.main, step.main.length > 22 ? 1150 : 880),
     },
-    isFirst ? 0 : "+=100"
+    isFirst ? 0 : "+=80"
   );
 
   if (step.sub) {
     tl.add(
       subEl,
       {
-        opacity: { to: 1, duration: 200 },
+        opacity: { to: 1, duration: 220 },
         innerHTML: scrambleText({
           text: step.sub,
           from: "left",
-          duration: 580,
+          duration: 620,
           cursor: "░▒▓",
-          perturbation: 0.2,
+          perturbation: 0.22,
           ease: "inOut(2)",
         }),
       },
-      "<<+=220"
+      "<<+=240"
     );
   }
 
   tl.add({ duration: step.hold });
 }
 
-function addFinalTransition(
-  tl: Timeline,
-  overlay: HTMLElement,
-  boot: HTMLElement,
-  flash: HTMLElement,
-  mainEl: HTMLElement,
-  subEl: HTMLElement
-) {
-  tl.add({ duration: 300 });
-
-  tl.add(flash, {
-    opacity: [
-      { to: 1, duration: 70, ease: "linear" },
-      { to: 0, duration: 130, ease: "out(2)" },
-    ],
-  });
-
-  tl.add(
-    [boot, mainEl, subEl],
-    {
-      opacity: { to: 0, duration: 180, ease: "in(4)" },
-      scale: { to: 1.08, duration: 220, ease: "in(4)" },
-      filter: { to: "blur(6px)", duration: 220 },
-    },
-    "<<"
-  );
-
-  tl.add(
-    overlay,
-    {
-      scale: [
-        { to: 1.08, duration: 180, ease: "in(4)" },
-        { to: 1.14, duration: 160, ease: "in(3)" },
-      ],
-      opacity: { to: 0, duration: 280, ease: "in(3)" },
-      filter: { to: "blur(20px)", duration: 280 },
-    },
-    "<<+=40"
-  );
-}
-
-export function LoadingScreen({ onComplete }: LoadingScreenProps) {
+export function LoadingScreen({ desktopRef, onComplete }: LoadingScreenProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
   const flashRef = useRef<HTMLDivElement>(null);
-  const slideRef = useRef<HTMLDivElement>(null);
-  const bootRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLParagraphElement>(null);
   const subRef = useRef<HTMLParagraphElement>(null);
   const onCompleteRef = useRef(onComplete);
@@ -234,22 +117,11 @@ export function LoadingScreen({ onComplete }: LoadingScreenProps) {
   useEffect(() => {
     const overlay = overlayRef.current;
     const flash = flashRef.current;
-    const slide = slideRef.current;
-    const boot = bootRef.current;
+    const content = contentRef.current;
     const mainEl = mainRef.current;
     const subEl = subRef.current;
 
-    if (!overlay || !flash || !slide || !boot || !mainEl || !subEl) {
-      onCompleteRef.current();
-      return;
-    }
-
-    const center = slide.querySelector<HTMLElement>(".loading-grid-p.center");
-    const outer = Array.from(
-      slide.querySelectorAll<HTMLElement>(".loading-grid-p:not(.center)")
-    );
-
-    if (!center) {
+    if (!overlay || !flash || !content || !mainEl || !subEl) {
       onCompleteRef.current();
       return;
     }
@@ -263,17 +135,76 @@ export function LoadingScreen({ onComplete }: LoadingScreenProps) {
 
     const tl = createTimeline({ autoplay: true });
 
-    addGridIntro(tl, slide, center, outer);
-
-    tl.add(boot, {
-      opacity: { to: 1, duration: 350, ease: "out(2)" },
-    });
-
     BOOT_SEQUENCE.forEach((step, i) => {
       addBootStep(tl, mainEl, subEl, step, i === 0);
     });
 
-    addFinalTransition(tl, overlay, boot, flash, mainEl, subEl);
+    // Pre-climax pause
+    tl.add({ duration: 500 });
+
+    // Scramble out final line before entry
+    tl.add(mainEl, { innerHTML: scrambleOut() });
+    tl.add(
+      subEl,
+      {
+        innerHTML: scrambleText({
+          text: "",
+          override: false,
+          from: "center",
+          reversed: true,
+          duration: 280,
+          cursor: "░▒",
+        }),
+      },
+      "<<"
+    );
+
+    tl.add({ duration: 200 });
+
+    // White flash — sole palette break
+    tl.add(flash, {
+      opacity: [{ from: 0, to: 1, duration: 90 }, { to: 0, duration: 280 }],
+      ease: "linear",
+    });
+
+    tl.add({ duration: 80 });
+
+    // Pull-in: desktop zooms from center through the screen
+    const desktop = desktopRef.current;
+    if (desktop) {
+      tl.add(desktop, {
+        opacity: { from: 0, to: 1, duration: 1100, ease: "out(3)" },
+        scale: [
+          { from: 0.68, to: 1.06, duration: 1300, ease: "inOut(4)" },
+          { to: 1, duration: 400, ease: "out(2)" },
+        ],
+        filter: [
+          { from: "blur(20px)", to: "blur(4px)", duration: 900, ease: "out(3)" },
+          { to: "blur(0px)", duration: 500, ease: "out(2)" },
+        ],
+      });
+    }
+
+    // Overlay warps outward as we're drawn in
+    tl.add(
+      overlay,
+      {
+        opacity: { to: 0, duration: 1000, ease: "in(2)" },
+        scale: { to: 1.22, duration: 1200, ease: "in(3)" },
+        filter: { to: "blur(14px)", duration: 900, ease: "in(2)" },
+      },
+      "<<+=120"
+    );
+
+    tl.add(
+      content,
+      {
+        opacity: { to: 0, duration: 400, ease: "out(2)" },
+        scale: { to: 1.35, duration: 700, ease: "in(3)" },
+      },
+      "<<"
+    );
+
     tl.call(finish);
 
     const fallback = setTimeout(finish, MAX_BOOT_MS);
@@ -283,7 +214,7 @@ export function LoadingScreen({ onComplete }: LoadingScreenProps) {
       tl.pause();
       tl.revert();
     };
-  }, []);
+  }, [desktopRef]);
 
   return (
     <div
@@ -293,35 +224,15 @@ export function LoadingScreen({ onComplete }: LoadingScreenProps) {
       aria-busy="true"
       aria-label="System boot sequence"
     >
+      <div className="loading-scanlines pointer-events-none absolute inset-0" aria-hidden />
       <div
         ref={flashRef}
-        className="loading-flash pointer-events-none absolute inset-0 z-20 bg-white opacity-0"
+        className="pointer-events-none absolute inset-0 z-20 bg-white opacity-0"
         aria-hidden
       />
-      <div className="loading-scanlines pointer-events-none absolute inset-0" aria-hidden />
-
-      <div ref={slideRef} className="loading-slide relative z-10">
-        {GRID_ROWS.map((count, rowIndex) => (
-          <div key={rowIndex} className="loading-row">
-            {Array.from({ length: count }).map((_, colIndex) => {
-              const isCenter =
-                rowIndex === CENTER_ROW_INDEX && colIndex === Math.floor(count / 2);
-              return (
-                <p
-                  key={colIndex}
-                  className={`loading-grid-p${isCenter ? " center" : ""}`}
-                >
-                  Loading
-                </p>
-              );
-            })}
-          </div>
-        ))}
-      </div>
-
       <div
-        ref={bootRef}
-        className="loading-boot relative z-10 flex flex-col items-center px-6 text-center opacity-0"
+        ref={contentRef}
+        className="relative z-10 flex flex-col items-center px-6 text-center"
       >
         <p
           ref={mainRef}
