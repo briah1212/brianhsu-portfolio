@@ -1,6 +1,15 @@
 import { create } from "zustand";
-import { getAppConfig } from "@/config/apps";
+import { APPS, getAppConfig } from "@/config/apps";
+import { getMaximizedWindowBounds } from "@/components/window/resizeUtils";
 import type { AppId, DockIconPosition, WindowState } from "@/types";
+
+const THEME_STORAGE_KEY = "portfolio-theme";
+
+function readStoredTheme(): "light" | "dark" | null {
+  if (typeof window === "undefined") return null;
+  const stored = localStorage.getItem(THEME_STORAGE_KEY);
+  return stored === "light" || stored === "dark" ? stored : null;
+}
 
 interface WindowStore {
   windows: WindowState[];
@@ -15,11 +24,17 @@ interface WindowStore {
   openApp: (appId: AppId, route?: string) => void;
   closeWindow: (id: string) => void;
   minimizeWindow: (id: string) => void;
+  toggleMaximizeWindow: (id: string) => void;
+  commitRestoreBounds: (id: string) => void;
   restoreWindow: (id: string) => void;
   focusWindow: (id: string) => void;
   updateWindow: (id: string, updates: Partial<WindowState>) => void;
   navigateInWindow: (id: string, route?: string) => void;
   toggleTheme: () => void;
+  hydrateTheme: () => void;
+  closeAllWindows: () => void;
+  openAllApps: () => void;
+  bringAllToFront: () => void;
   setGenieOrigin: (appId: AppId, x: number, y: number) => void;
   clearGenieOrigin: () => void;
 }
@@ -140,6 +155,58 @@ export const useWindowStore = create<WindowStore>((set, get) => ({
         state.activeWindowId === id ? null : state.activeWindowId,
     })),
 
+  toggleMaximizeWindow: (id) => {
+    const nextZ = get().topZIndex + 1;
+    set((state) => ({
+      windows: state.windows.map((w) => {
+        if (w.id !== id) return w;
+
+        if (w.isMaximized) {
+          return {
+            ...w,
+            isMaximized: false,
+            zIndex: nextZ,
+          };
+        }
+
+        const maximized = getMaximizedWindowBounds();
+        return {
+          ...w,
+          isMaximized: true,
+          preMaximizeBounds: {
+            x: w.x,
+            y: w.y,
+            width: w.width,
+            height: w.height,
+          },
+          x: maximized.x,
+          y: maximized.y,
+          width: maximized.width,
+          height: maximized.height,
+          zIndex: nextZ,
+        };
+      }),
+      activeWindowId: id,
+      topZIndex: nextZ,
+    }));
+  },
+
+  commitRestoreBounds: (id) =>
+    set((state) => ({
+      windows: state.windows.map((w) => {
+        if (w.id !== id || !w.preMaximizeBounds) return w;
+        const bounds = w.preMaximizeBounds;
+        return {
+          ...w,
+          x: bounds.x,
+          y: bounds.y,
+          width: bounds.width,
+          height: bounds.height,
+          preMaximizeBounds: undefined,
+        };
+      }),
+    })),
+
   restoreWindow: (id) => {
     const nextZ = get().topZIndex + 1;
     set((state) => ({
@@ -177,7 +244,44 @@ export const useWindowStore = create<WindowStore>((set, get) => ({
     })),
 
   toggleTheme: () =>
+    set((state) => {
+      const theme = state.theme === "dark" ? "light" : "dark";
+      if (typeof window !== "undefined") {
+        localStorage.setItem(THEME_STORAGE_KEY, theme);
+      }
+      return { theme };
+    }),
+
+  hydrateTheme: () => {
+    const stored = readStoredTheme();
+    if (stored) set({ theme: stored });
+  },
+
+  closeAllWindows: () => set({ windows: [], activeWindowId: null }),
+
+  openAllApps: () => {
+    for (const app of APPS) {
+      get().openApp(app.id);
+    }
+  },
+
+  bringAllToFront: () => {
+    const visible = get().windows.filter((w) => !w.isMinimized);
+    if (visible.length === 0) return;
+
+    let nextZ = get().topZIndex;
+    const zById = new Map<string, number>();
+    for (const win of visible) {
+      nextZ += 1;
+      zById.set(win.id, nextZ);
+    }
+
     set((state) => ({
-      theme: state.theme === "dark" ? "light" : "dark",
-    })),
+      windows: state.windows.map((w) =>
+        zById.has(w.id) ? { ...w, zIndex: zById.get(w.id)! } : w
+      ),
+      topZIndex: nextZ,
+      activeWindowId: visible[visible.length - 1]?.id ?? state.activeWindowId,
+    }));
+  },
 }));

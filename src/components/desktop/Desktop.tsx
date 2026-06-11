@@ -12,6 +12,7 @@ export function Desktop() {
   const [showLoading, setShowLoading] = useState(true);
   const [desktopReady, setDesktopReady] = useState(false);
   const theme = useWindowStore((s) => s.theme);
+  const hydrateTheme = useWindowStore((s) => s.hydrateTheme);
   const activeWindowId = useWindowStore((s) => s.activeWindowId);
   const closeWindow = useWindowStore((s) => s.closeWindow);
   const windows = useWindowStore((s) => s.windows);
@@ -24,6 +25,10 @@ export function Desktop() {
   const handleLoadingExit = useCallback(() => {
     setShowLoading(false);
   }, []);
+
+  useEffect(() => {
+    hydrateTheme();
+  }, [hydrateTheme]);
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);

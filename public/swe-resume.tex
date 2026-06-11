@@ -1,0 +1,274 @@
+% Brian Hsu — Software Engineering Resume
+% Uses the same environments and spacing config as resume.tex
+% Compile: pdflatex swe-resume.tex
+% =============================================================================
+\documentclass[10pt,letterpaper]{article}
+
+\usepackage[
+  letterpaper,
+  top=0.4in,
+  bottom=0.2in,
+  left=0.6in,
+  right=0.6in,
+  nohead,
+  nofoot
+]{geometry}
+
+\usepackage[T1]{fontenc}
+\usepackage[lining]{ebgaramond}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage[hidelinks]{hyperref}
+
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+\raggedbottom
+
+% =============================================================================
+% SPACING CONFIGURATION  (shared with resume.tex — tweak independently if needed)
+% =============================================================================
+\newcommand{\ResumeBodySize}{10.5}
+\newcommand{\ResumeBodyLeading}{12.0}
+
+\newcommand{\ResumeContactSize}{11}
+\newcommand{\ResumeContactLeading}{12.0}
+
+\newcommand{\ResumeNameSize}{18}
+\newcommand{\ResumeNameLeading}{17.4}
+
+\newcommand{\ResumeSectionSize}{12}
+\newcommand{\ResumeSectionLeading}{12.0}
+
+\newcommand{\ResumeTitleSize}{10}
+\newcommand{\ResumeTitleLeading}{12.0}
+
+\newcommand{\ResumeProjectBoldSize}{10.5}
+\newcommand{\ResumeProjectBoldLeading}{12.0}
+
+\newcommand{\ResumeSpaceAfterName}{4pt}
+
+\newcommand{\ResumeEducationSpaceBefore}{4pt}
+\newcommand{\ResumeEducationSpaceAfter}{6pt}
+
+\newcommand{\ResumeWorkSpaceBefore}{8pt}
+\newcommand{\ResumeWorkSpaceAfter}{2pt}
+
+\newcommand{\ResumeProjectsSpaceBefore}{8pt}
+\newcommand{\ResumeProjectsSpaceAfter}{2pt}
+
+\newcommand{\ResumeSkillsSpaceBefore}{8pt}
+\newcommand{\ResumeSkillsSpaceAfter}{2pt}
+
+\newcommand{\ResumeSpaceBeforeSchool}{0pt}
+\newcommand{\ResumeSpaceAfterSchool}{1pt}
+
+\newcommand{\ResumeSpaceBeforeWorkEntry}{2pt}
+\newcommand{\ResumeSpaceAfterWorkEntry}{0pt}
+
+\newcommand{\ResumeSpaceBeforeProjectTitle}{2pt}
+\newcommand{\ResumeSpaceAfterProjectTitle}{1pt}
+
+\newcommand{\ResumeBulletLeftMargin}{18pt}
+\newcommand{\ResumeBulletLabelSep}{6pt}
+\newcommand{\ResumeBulletTopSep}{0pt}
+\newcommand{\ResumeBulletBottomSep}{0pt}
+\newcommand{\ResumeBulletItemSep}{0pt}
+\newcommand{\ResumeBulletParsep}{0pt}
+\newcommand{\ResumeBulletPartopsep}{0pt}
+
+\newcommand{\ResumeSkillsLabelSep}{4pt}
+\newcommand{\ResumeSkillsTopSep}{0pt}
+\newcommand{\ResumeSkillsBottomSep}{0pt}
+\newcommand{\ResumeSkillsItemSep}{1pt}
+\newcommand{\ResumeSkillsParsep}{0pt}
+
+% =============================================================================
+% TYPOGRAPHY
+% =============================================================================
+\newcommand{\bodyfont}{\fontsize{\ResumeBodySize}{\ResumeBodyLeading}\selectfont}
+\newcommand{\contactfont}{\fontsize{\ResumeContactSize}{\ResumeContactLeading}\selectfont}
+\newcommand{\namefont}{\fontsize{\ResumeNameSize}{\ResumeNameLeading}\selectfont\bfseries}
+\newcommand{\sectionfont}{\fontsize{\ResumeSectionSize}{\ResumeSectionLeading}\selectfont\bfseries}
+\newcommand{\titlefont}{\fontsize{\ResumeTitleSize}{\ResumeTitleLeading}\selectfont\itshape}
+\newcommand{\projectbold}{\fontsize{\ResumeProjectBoldSize}{\ResumeProjectBoldLeading}\selectfont\bfseries}
+
+\bodyfont
+
+% =============================================================================
+% ENVIRONMENTS & HELPERS  (same as resume.tex)
+% =============================================================================
+\newcommand{\resumesectionheading}[3]{%
+  \vspace{#1}%
+  \noindent{\sectionfont #2}\par
+  \vspace{#3}%
+}
+
+\newenvironment{resumeitems}{%
+  \begin{itemize}[
+    leftmargin=\ResumeBulletLeftMargin,
+    labelsep=\ResumeBulletLabelSep,
+    topsep=\ResumeBulletTopSep,
+    partopsep=\ResumeBulletPartopsep,
+    parsep=\ResumeBulletParsep,
+    itemsep=\ResumeBulletItemSep,
+    label=\raisebox{0.15ex}{\fontsize{6}{6}\selectfont$\bullet$}
+  ]
+}{%
+  \end{itemize}%
+  \vspace{\ResumeBulletBottomSep}%
+}
+
+\newenvironment{education}[1][EDUCATION:]{%
+  \resumesectionheading{\ResumeEducationSpaceBefore}{#1}{\ResumeEducationSpaceAfter}%
+}{}
+
+\newenvironment{workexperience}[1][WORK EXPERIENCE:]{%
+  \resumesectionheading{\ResumeWorkSpaceBefore}{#1}{\ResumeWorkSpaceAfter}%
+}{}
+
+\newenvironment{projects}[1][PROJECTS:]{%
+  \resumesectionheading{\ResumeProjectsSpaceBefore}{#1}{\ResumeProjectsSpaceAfter}%
+}{}
+
+\newenvironment{skills}[1][SKILLS:]{%
+  \resumesectionheading{\ResumeSkillsSpaceBefore}{#1}{\ResumeSkillsSpaceAfter}%
+  \begin{itemize}[
+    leftmargin=*,
+    labelsep=\ResumeSkillsLabelSep,
+    topsep=\ResumeSkillsTopSep,
+    partopsep=0pt,
+    parsep=\ResumeSkillsParsep,
+    itemsep=\ResumeSkillsItemSep,
+    label=\textbullet
+  ]
+}{%
+  \end{itemize}%
+  \vspace{\ResumeSkillsBottomSep}%
+}
+
+\newcommand{\school}[1]{%
+  \vspace{\ResumeSpaceBeforeSchool}%
+  \noindent{\bfseries #1}\par
+  \vspace{\ResumeSpaceAfterSchool}%
+}
+
+\newenvironment{educationitems}{%
+  \begin{resumeitems}%
+}{%
+  \end{resumeitems}%
+}
+
+\newcommand{\workentry}[3]{%
+  \vspace{\ResumeSpaceBeforeWorkEntry}%
+  \noindent{\bfseries #1}, {\titlefont #2}\hfill{\bodyfont #3}\par
+  \vspace{\ResumeSpaceAfterWorkEntry}%
+}
+
+\newenvironment{workitems}{%
+  \begin{resumeitems}%
+}{%
+  \end{resumeitems}%
+}
+
+\newcommand{\projecttitle}[1]{%
+  \vspace{\ResumeSpaceBeforeProjectTitle}%
+  \noindent{\projectbold #1}\par
+  \vspace{\ResumeSpaceAfterProjectTitle}%
+}
+
+\newcommand{\projectentry}[2]{%
+  \vspace{\ResumeSpaceBeforeProjectTitle}%
+  \noindent{\projectbold #1} {\titlefont #2}\par
+  \vspace{\ResumeSpaceAfterProjectTitle}%
+}
+
+\newenvironment{projectitems}{%
+  \begin{resumeitems}%
+}{%
+  \end{resumeitems}%
+}
+
+\newcommand{\skillitem}[2]{\item {\bfseries #1} #2}
+
+\newcommand{\skilldual}[4]{%
+  \item {\bfseries #1} #2 \hfill {\bfseries \textbullet\ #3} #4%
+}
+
+% =============================================================================
+% CONTENT — SWE variant
+% =============================================================================
+\begin{document}
+
+\begin{center}
+  {\namefont Brian Hsu}\\[\ResumeSpaceAfterName]
+  {\contactfont 646-236-7795 \textbar\ hsubrian1212@gmail.com \textbar\ LinkedIn: brianhsuu}
+\end{center}
+
+\begin{education}
+  \school{University of Michigan, Ann Arbor --- College of Literature, Science, and the Arts}
+  \begin{educationitems}
+    \item B.S. Computer Science \& B.S. Cognitive Science (Computation Track), GPA: 3.9/4
+  \end{educationitems}
+\end{education}
+
+\begin{workexperience}
+  \workentry{Los Alamos National Laboratory}{Software Engineer (HPC Systems)}{May 2026 -- Aug 2026}
+  \begin{workitems}
+    \item Built backend infrastructure to provision and manage distributed compute nodes using {\bfseries Python, Bash, and Linux}, automating system setup and configuration workflows
+    \item Built and deployed containerized services using {\bfseries Docker} (Podman) and leveraged {\bfseries AWS (EC2, S3)} to provision scalable compute resources, streamlining application packaging and improving deployment consistency and flexibility
+    \item Designed and ran performance benchmarks for {\bfseries high-throughput data pipelines (400+ Gb/s)}, writing scripts to measure latency/throughput and identify bottlenecks in large-scale data transfer systems
+    \item Tested and optimized cross-system data transfer tools ({\bfseries rsync, scp, custom TCP/UDP pipelines}) across heterogeneous environments, improving reliability and fault tolerance of distributed workloads and network communication
+  \end{workitems}
+
+  \workentry{Memorial Sloan Kettering Cancer Center}{Scientific Computing Engineer}{June 2025 -- Sep 2025}
+  \begin{workitems}
+    \item Developed and shipped full-stack features for an {\bfseries Open OnDemand (Ruby on Rails)} web platform, enabling browser-based job submission and cluster interaction for cancer labs
+    \item Built interactive frontend dashboards using {\bfseries Chart.js + JavaScript}, integrating backend data from {\bfseries job scheduling APIs and Python services} to visualize real-time CPU/GPU utilization
+    \item Implemented backend data pipelines in {\bfseries Python (Pandas, Bash)} to parse and aggregate HPC usage logs, improving reporting performance and reducing onboarding friction for 18+ research labs
+    \item Collaborated with cross-functional stakeholders (researchers, sysadmins) to {\bfseries translate user needs into product features}, improving onboarding and usability across 15+ teams
+  \end{workitems}
+
+  \workentry{Lyft}{Data Analytics Intern (Bike Angels Program)}{June 2024 -- Aug 2024}
+  \begin{workitems}
+    \item Built production-grade {\bfseries SQL data pipelines} to analyze behavioral data from {\bfseries 44,000+ users}, detecting anomalies in reward accumulation across time-series ride data
+    \item Implemented fraud detection logic and heuristics to identify coordinated abuse patterns (e.g., station flipping, account sharing), translating business rules into scalable query logic
+    \item Optimized data queries and anomaly detection workflows, reducing operational losses by {\bfseries \textasciitilde 7\%} through improved detection accuracy
+    \item Analyzed and modeled incentive algorithms, proposing updates that improved system efficiency and reduced negative user costs by {\bfseries \textasciitilde 12\%}
+  \end{workitems}
+\end{workexperience}
+
+\begin{projects}
+  \projecttitle{Operating Systems Simulation (C++)}
+  \begin{projectitems}
+    \item Simulated a multi-threaded CPU scheduler implementing {\bfseries context switching, thread management, mutex locks, and condition variables}, modeling concurrent execution
+    \item Built a virtual memory and disk simulator with {\bfseries page eviction, copy-on-write, and low-level bit manipulation}, replicating OS-level memory and storage behavior
+    \item Designed a file system simulator using {\bfseries inode-based structures}, implementing directory traversal, locking, and concurrent file access handling
+  \end{projectitems}
+
+  \projecttitle{MHEAL --- Project Alivio (Software Lead)}
+  \begin{projectitems}
+    \item Built a full-stack healthcare web application using {\bfseries React (frontend) and Flask (backend)}, supporting patient tracking and medical data workflows
+    \item Designed and deployed cloud infrastructure on {\bfseries AWS (EC2, S3, ECR, Elastic Beanstalk)} with {\bfseries Docker-based CI/CD pipelines} for scalable application delivery
+    \item Wrote unit and integration tests and coordinated deployment for real-world user feedback from clinical partners
+  \end{projectitems}
+
+  \projecttitle{Leventhal Lab --- 3D Pose Estimation Research}
+  \begin{projectitems}
+    \item Trained deep learning models ({\bfseries PyTorch / TensorFlow CNNs}) for 3D pose estimation on multi-camera video datasets
+    \item Built data processing pipelines using {\bfseries Python (NumPy, OpenCV, Pandas)} to handle {\bfseries 10M+ data points}, including synchronization and triangulation logic
+    \item Optimized pipeline performance via {\bfseries batching, GPU utilization tuning, and I/O improvements}, increasing model accuracy and efficiency
+    \item Developed analysis and visualization tools in {\bfseries Python and MATLAB} for interpreting behavioral data
+  \end{projectitems}
+\end{projects}
+
+\begin{skills}
+  \skillitem{Languages:}{Python, C/C++, Java, JavaScript (React), R, MATLAB, Ruby, HTML/CSS}
+  \skillitem{Backend \& Systems:}{REST APIs, distributed systems, Linux, SLURM, multithreading, concurrency}
+  \skillitem{Data \& ML:}{Pandas, NumPy, OpenCV, SQL, data pipelines, PyTorch, TensorFlow}
+  \skillitem{Cloud \& DevOps:}{AWS (EC2, S3, ECR, Elastic Beanstalk), Docker, CI/CD, Ansible}
+  \skillitem{Tools:}{Git, Jupyter, VS Code}
+  \skilldual{Languages:}{English, Mandarin, Taiwanese}{Interests:}{Traveling, Content Creation, Dance}
+\end{skills}
+
+\end{document}

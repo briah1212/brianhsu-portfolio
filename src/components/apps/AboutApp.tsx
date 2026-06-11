@@ -58,7 +58,7 @@ export function AboutApp() {
         <h2 className="text-lg font-semibold">About Me</h2>
         <p className="mt-2 text-sm leading-relaxed text-foreground/60">
           I&apos;m a Computer Science and Cognitive Science student at the
-          University of Michigan (Computation track, GPA 3.9). I build
+          University of Michigan, with a focus on computation and human behavior. I build
           high-performance systems — from HPC clusters and scientific computing
           platforms to data pipelines and ML research tooling — with an eye for
           how software supports real human and scientific workflows.

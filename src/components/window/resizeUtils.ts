@@ -8,6 +8,38 @@ export const MIN_WINDOW_HEIGHT = 240;
 export const MENU_BAR_HEIGHT = 28;
 export const DOCK_AREA = 90;
 
+export function getMaximizedWindowBounds(
+  viewportWidth = globalThis.innerWidth,
+  viewportHeight = globalThis.innerHeight
+): ResizeRect {
+  return {
+    x: 0,
+    y: MENU_BAR_HEIGHT,
+    width: viewportWidth,
+    height: viewportHeight - MENU_BAR_HEIGHT - DOCK_AREA,
+  };
+}
+
+interface BoundsTargetInput {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  isMaximized: boolean;
+  preMaximizeBounds?: { x: number; y: number; width: number; height: number };
+}
+
+/** Visual target for window bounds — keeps maximized store size during restore animation. */
+export function getWindowBoundsTarget(win: BoundsTargetInput): ResizeRect & { radius: number } {
+  if (win.isMaximized) {
+    return { ...getMaximizedWindowBounds(), radius: 0 };
+  }
+  if (win.preMaximizeBounds) {
+    return { ...win.preMaximizeBounds, radius: 12 };
+  }
+  return { x: win.x, y: win.y, width: win.width, height: win.height, radius: 12 };
+}
+
 export const RESIZE_CURSORS: Record<ResizeDirection, string> = {
   n: "ns-resize",
   s: "ns-resize",

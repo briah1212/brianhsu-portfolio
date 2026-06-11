@@ -1,13 +1,31 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import {
+  motion,
+  AnimatePresence,
+  animate,
+  useMotionValue,
+} from "framer-motion";
 import { useWindowStore } from "@/store/windowStore";
 import { getAppConfig } from "@/config/apps";
 import { AppContainer } from "@/components/apps/AppContainer";
 import { WindowResizeHandles } from "./WindowResizeHandles";
-import { DOCK_AREA, MENU_BAR_HEIGHT } from "./resizeUtils";
+import {
+  DOCK_AREA,
+  getMaximizedWindowBounds,
+  getWindowBoundsTarget,
+  MENU_BAR_HEIGHT,
+} from "./resizeUtils";
 import type { WindowState } from "@/types";
+import type { Transition } from "framer-motion";
+
+const MAXIMIZE_SPRING: Transition = {
+  type: "spring",
+  stiffness: 380,
+  damping: 34,
+  mass: 0.9,
+};
 
 interface WindowProps {
   window: WindowState;
@@ -18,6 +36,7 @@ export function Window({ window: win }: WindowProps) {
     focusWindow,
     closeWindow,
     minimizeWindow,
+    toggleMaximizeWindow,
     updateWindow,
     activeWindowId,
     genieOrigin,
@@ -32,13 +51,38 @@ export function Window({ window: win }: WindowProps) {
   const winRectRef = useRef({ x: win.x, y: win.y, width: win.width, height: win.height });
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
+  const [isViewportSync, setIsViewportSync] = useState(false);
+  const [isAnimatingBounds, setIsAnimatingBounds] = useState(false);
+  const [hasEntered, setHasEntered] = useState(false);
   const dragStart = useRef({ x: 0, y: 0, winX: 0, winY: 0 });
+  const dragSizeRef = useRef({ width: win.width, height: win.height });
   const dragRafRef = useRef<number | null>(null);
   const pendingDrag = useRef<{ x: number; y: number } | null>(null);
+  const boundsLeft = useMotionValue(win.x);
+  const boundsTop = useMotionValue(win.y);
+  const boundsWidth = useMotionValue(win.width);
+  const boundsHeight = useMotionValue(win.height);
+  const boundsRadius = useMotionValue(win.isMaximized ? 0 : 12);
+  const winIdRef = useRef(win.id);
+  winIdRef.current = win.id;
 
-  winRectRef.current = { x: win.x, y: win.y, width: win.width, height: win.height };
+  const isRestoring =
+    !win.isMaximized && win.preMaximizeBounds !== undefined;
+
+  winRectRef.current = isRestoring
+    ? {
+        x: win.preMaximizeBounds!.x,
+        y: win.preMaximizeBounds!.y,
+        width: win.preMaximizeBounds!.width,
+        height: win.preMaximizeBounds!.height,
+      }
+    : { x: win.x, y: win.y, width: win.width, height: win.height };
 
   const shouldGenie = genieAppId === win.appId && genieOrigin !== null;
+
+  useEffect(() => {
+    setHasEntered(true);
+  }, []);
 
   useEffect(() => {
     if (shouldGenie) {
@@ -46,6 +90,89 @@ export function Window({ window: win }: WindowProps) {
       return () => clearTimeout(timer);
     }
   }, [shouldGenie, clearGenieOrigin]);
+
+  useEffect(() => {
+    if (!win.isMaximized) return;
+
+    const syncMaximizedBounds = () => {
+      setIsViewportSync(true);
+      updateWindow(win.id, getMaximizedWindowBounds());
+    };
+
+    globalThis.addEventListener("resize", syncMaximizedBounds);
+    return () => globalThis.removeEventListener("resize", syncMaximizedBounds);
+  }, [win.isMaximized, win.id, updateWindow]);
+
+  useEffect(() => {
+    if (!isViewportSync) return;
+    const frame = requestAnimationFrame(() => setIsViewportSync(false));
+    return () => cancelAnimationFrame(frame);
+  }, [isViewportSync, win.x, win.y, win.width, win.height]);
+
+  useEffect(() => {
+    const targets = getWindowBoundsTarget(win);
+    const isMaximizeTransition = win.isMaximized || isRestoring;
+    const instant = isDragging || isResizing || isViewportSync;
+
+    if (instant) {
+      boundsLeft.jump(targets.x);
+      boundsTop.jump(targets.y);
+      boundsWidth.jump(targets.width);
+      boundsHeight.jump(targets.height);
+      boundsRadius.jump(targets.radius);
+      return;
+    }
+
+    if (isMaximizeTransition) {
+      setIsAnimatingBounds(true);
+    }
+
+    const controls = [
+      animate(boundsLeft, targets.x, MAXIMIZE_SPRING),
+      animate(boundsTop, targets.y, MAXIMIZE_SPRING),
+      animate(boundsWidth, targets.width, MAXIMIZE_SPRING),
+      animate(boundsHeight, targets.height, MAXIMIZE_SPRING),
+      animate(boundsRadius, targets.radius, MAXIMIZE_SPRING),
+    ];
+
+    let cancelled = false;
+
+    void Promise.all(controls).then(() => {
+      if (cancelled) return;
+
+      if (isMaximizeTransition) {
+        const state = useWindowStore.getState();
+        const current = state.windows.find((w) => w.id === winIdRef.current);
+        if (current && !current.isMaximized && current.preMaximizeBounds) {
+          state.commitRestoreBounds(winIdRef.current);
+        }
+        setIsAnimatingBounds(false);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+      for (const control of controls) {
+        control.stop();
+      }
+    };
+  }, [
+    win.x,
+    win.y,
+    win.width,
+    win.height,
+    win.isMaximized,
+    win.preMaximizeBounds,
+    isRestoring,
+    isDragging,
+    isResizing,
+    isViewportSync,
+    boundsLeft,
+    boundsTop,
+    boundsWidth,
+    boundsHeight,
+    boundsRadius,
+  ]);
 
   const getGenieVariants = () => {
     if (!shouldGenie || !genieOrigin) {
@@ -99,10 +226,18 @@ export function Window({ window: win }: WindowProps) {
 
   const handleDragStart = useCallback(
     (e: React.PointerEvent) => {
-      if (win.isMaximized || isResizing) return;
+      if (isResizing || isAnimatingBounds) return;
+      if ((e.target as Element).closest(".title-bar-controls")) return;
+
+      if (win.isMaximized) {
+        focusWindow(win.id);
+        return;
+      }
+
       e.preventDefault();
       focusWindow(win.id);
       setIsDragging(true);
+      dragSizeRef.current = { width: win.width, height: win.height };
       dragStart.current = {
         x: e.clientX,
         y: e.clientY,
@@ -113,8 +248,9 @@ export function Window({ window: win }: WindowProps) {
       const onPointerMove = (ev: PointerEvent) => {
         const dx = ev.clientX - dragStart.current.x;
         const dy = ev.clientY - dragStart.current.y;
-        const maxX = globalThis.innerWidth - win.width;
-        const maxY = globalThis.innerHeight - win.height - DOCK_AREA;
+        const { width, height } = dragSizeRef.current;
+        const maxX = globalThis.innerWidth - width;
+        const maxY = globalThis.innerHeight - height - DOCK_AREA;
         pendingDrag.current = {
           x: Math.max(0, Math.min(maxX, dragStart.current.winX + dx)),
           y: Math.max(MENU_BAR_HEIGHT, Math.min(maxY, dragStart.current.winY + dy)),
@@ -143,7 +279,27 @@ export function Window({ window: win }: WindowProps) {
       document.addEventListener("pointerup", onPointerUp);
       document.addEventListener("pointercancel", onPointerUp);
     },
-    [win.isMaximized, isResizing, focusWindow, win.x, win.y, win.width, win.height, win.id, updateWindow, flushDrag]
+    [
+      win.isMaximized,
+      isAnimatingBounds,
+      isResizing,
+      focusWindow,
+      win.x,
+      win.y,
+      win.width,
+      win.height,
+      win.id,
+      updateWindow,
+      flushDrag,
+    ]
+  );
+
+  const handleToggleMaximize = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      toggleMaximizeWindow(win.id);
+    },
+    [toggleMaximizeWindow, win.id]
   );
 
   const getWindowRect = useCallback(() => winRectRef.current, []);
@@ -166,18 +322,41 @@ export function Window({ window: win }: WindowProps) {
         theme === "dark" ? "window-dark" : "window-light"
       } ${isActive ? "window-active" : "window-inactive"} ${
         isResizing ? "window-resizing" : ""
-      } ${isDragging ? "window-dragging" : ""}`}
+      } ${isDragging ? "window-dragging" : ""} ${
+        win.isMaximized ? "window-maximized" : ""
+      }`}
       style={{
-        left: win.x,
-        top: win.y,
-        width: win.width,
-        height: win.height,
+        left: boundsLeft,
+        top: boundsTop,
+        width: boundsWidth,
+        height: boundsHeight,
+        borderRadius: boundsRadius,
         zIndex: win.zIndex,
         transformOrigin,
       }}
-      initial={variants.initial}
-      animate={variants.animate}
+      initial={
+        hasEntered
+          ? false
+          : shouldGenie && genieOrigin
+            ? variants.initial
+            : { opacity: 0, scale: 0.92 }
+      }
+      animate={
+        shouldGenie && genieOrigin
+          ? variants.animate
+          : { opacity: 1, scale: 1 }
+      }
       exit={variants.exit}
+      transition={
+        shouldGenie
+          ? {
+              type: "spring",
+              stiffness: 340,
+              damping: 26,
+              mass: 0.75,
+            }
+          : { duration: 0.25 }
+      }
       onPointerDown={() => focusWindow(win.id)}
       layout={false}
     >
@@ -185,7 +364,10 @@ export function Window({ window: win }: WindowProps) {
         className="title-bar relative flex h-9 shrink-0 cursor-default select-none items-center gap-2 px-3"
         onPointerDown={handleDragStart}
       >
-        <div className="title-bar-controls pointer-events-auto absolute left-3 top-1/2 z-30 flex -translate-y-1/2 items-center gap-1.5">
+        <div
+          className="title-bar-controls pointer-events-auto absolute left-3 top-1/2 z-30 flex -translate-y-1/2 items-center gap-1.5"
+          onPointerDown={(e) => e.stopPropagation()}
+        >
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -203,9 +385,12 @@ export function Window({ window: win }: WindowProps) {
             aria-label="Minimize"
           />
           <button
-            className="traffic-light traffic-maximize cursor-default opacity-50"
-            aria-label="Maximize"
-            disabled
+            onClick={handleToggleMaximize}
+            className={`traffic-light traffic-maximize ${
+              win.isMaximized ? "traffic-maximize-active" : ""
+            }`}
+            aria-label={win.isMaximized ? "Restore" : "Maximize"}
+            aria-pressed={win.isMaximized}
           />
         </div>
         <div className="w-[52px] shrink-0" />
@@ -221,7 +406,7 @@ export function Window({ window: win }: WindowProps) {
 
       <WindowResizeHandles
         windowId={win.id}
-        disabled={win.isMaximized}
+        disabled={win.isMaximized || isAnimatingBounds || isRestoring}
         onFocus={() => focusWindow(win.id)}
         onResizeStart={() => setIsResizing(true)}
         onResizeEnd={() => setIsResizing(false)}

@@ -20,6 +20,8 @@ export interface WindowState {
   zIndex: number;
   isMinimized: boolean;
   isMaximized: boolean;
+  /** Bounds saved before maximize, used to restore on un-maximize */
+  preMaximizeBounds?: { x: number; y: number; width: number; height: number };
   /** Internal route within the app (e.g. project slug) */
   route?: string;
 }
