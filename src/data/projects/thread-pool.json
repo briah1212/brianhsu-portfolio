@@ -3,6 +3,7 @@
   "title": "Work-Stealing Thread Pool",
   "tagline": "A from-scratch concurrent executor in C++",
   "description": "A lock-free-ish work-stealing scheduler with futures support, built for EECS 482 to deeply understand parallelism primitives.",
+  "category": "systems",
   "techStack": ["C++17", "std::thread", "Atomics", "CMake", "Google Test"],
   "problem": "Understanding how real runtimes schedule parallel work requires going below the abstraction of `std::async` and OpenMP.",
   "approach": "Implemented per-worker deques with Chase-Lev work stealing, a global task queue for overflow, and a `future`/`promise` wrapper for ergonomic task submission.",

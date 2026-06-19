@@ -1,9 +1,17 @@
 import { create } from "zustand";
 import { APPS, getAppConfig } from "@/config/apps";
-import { getMaximizedWindowBounds } from "@/components/window/resizeUtils";
+import { getProjectsWindowTitle } from "@/config/categories";
+import {
+  getMaximizedWindowBounds,
+  getEffectiveDockArea,
+} from "@/components/window/resizeUtils";
 import type { AppId, DockIconPosition, WindowState } from "@/types";
 
 const THEME_STORAGE_KEY = "portfolio-theme";
+
+function hasMaximizedWindow(windows: WindowState[]): boolean {
+  return windows.some((w) => w.isMaximized && !w.isMinimized);
+}
 
 function readStoredTheme(): "light" | "dark" | null {
   if (typeof window === "undefined") return null;
@@ -19,6 +27,7 @@ interface WindowStore {
   dockPositions: Record<AppId, DockIconPosition | null>;
   genieOrigin: { x: number; y: number } | null;
   genieAppId: AppId | null;
+  dockVisible: boolean;
 
   setDockPosition: (appId: AppId, x: number, y: number) => void;
   openApp: (appId: AppId, route?: string) => void;
@@ -32,6 +41,7 @@ interface WindowStore {
   navigateInWindow: (id: string, route?: string) => void;
   toggleTheme: () => void;
   hydrateTheme: () => void;
+  setDockVisible: (visible: boolean) => void;
   closeAllWindows: () => void;
   openAllApps: () => void;
   bringAllToFront: () => void;
@@ -60,6 +70,7 @@ export const useWindowStore = create<WindowStore>((set, get) => ({
   },
   genieOrigin: null,
   genieAppId: null,
+  dockVisible: true,
 
   setDockPosition: (appId, x, y) =>
     set((state) => ({
@@ -118,7 +129,10 @@ export const useWindowStore = create<WindowStore>((set, get) => ({
     const newWindow: WindowState = {
       id,
       appId,
-      title: route ? `${config.title}` : config.title,
+      title:
+        appId === "projects"
+          ? getProjectsWindowTitle(route)
+          : config.title,
       x: pos.x,
       y: pos.y,
       width: config.defaultSize.width,
@@ -143,7 +157,13 @@ export const useWindowStore = create<WindowStore>((set, get) => ({
         state.activeWindowId === id
           ? remaining[remaining.length - 1]?.id ?? null
           : state.activeWindowId;
-      return { windows: remaining, activeWindowId };
+      return {
+        windows: remaining,
+        activeWindowId,
+        dockVisible: hasMaximizedWindow(remaining)
+          ? state.dockVisible
+          : true,
+      };
     }),
 
   minimizeWindow: (id) =>
@@ -157,19 +177,30 @@ export const useWindowStore = create<WindowStore>((set, get) => ({
 
   toggleMaximizeWindow: (id) => {
     const nextZ = get().topZIndex + 1;
+    const target = get().windows.find((w) => w.id === id);
+    if (!target) return;
+
+    if (target.isMaximized) {
+      set((state) => {
+        const windows = state.windows.map((w) => {
+          if (w.id !== id) return w;
+          return { ...w, isMaximized: false, zIndex: nextZ };
+        });
+        return {
+          windows,
+          activeWindowId: id,
+          topZIndex: nextZ,
+          dockVisible: hasMaximizedWindow(windows) ? state.dockVisible : true,
+        };
+      });
+      return;
+    }
+
+    const maximized = getMaximizedWindowBounds(undefined, undefined, 0);
     set((state) => ({
+      dockVisible: false,
       windows: state.windows.map((w) => {
         if (w.id !== id) return w;
-
-        if (w.isMaximized) {
-          return {
-            ...w,
-            isMaximized: false,
-            zIndex: nextZ,
-          };
-        }
-
-        const maximized = getMaximizedWindowBounds();
         return {
           ...w,
           isMaximized: true,
@@ -239,7 +270,16 @@ export const useWindowStore = create<WindowStore>((set, get) => ({
   navigateInWindow: (id, route) =>
     set((state) => ({
       windows: state.windows.map((w) =>
-        w.id === id ? { ...w, route } : w
+        w.id === id
+          ? {
+              ...w,
+              route,
+              title:
+                w.appId === "projects"
+                  ? getProjectsWindowTitle(route)
+                  : w.title,
+            }
+          : w
       ),
     })),
 
@@ -257,7 +297,27 @@ export const useWindowStore = create<WindowStore>((set, get) => ({
     if (stored) set({ theme: stored });
   },
 
-  closeAllWindows: () => set({ windows: [], activeWindowId: null }),
+  setDockVisible: (visible) => {
+    const { dockVisible } = get();
+    if (dockVisible === visible) return;
+
+    const dockArea = getEffectiveDockArea(visible);
+    const maximizedBounds = getMaximizedWindowBounds(
+      undefined,
+      undefined,
+      dockArea
+    );
+
+    set((state) => ({
+      dockVisible: visible,
+      windows: state.windows.map((w) =>
+        w.isMaximized ? { ...w, ...maximizedBounds } : w
+      ),
+    }));
+  },
+
+  closeAllWindows: () =>
+    set({ windows: [], activeWindowId: null, dockVisible: true }),
 
   openAllApps: () => {
     for (const app of APPS) {

@@ -8,15 +8,20 @@ export const MIN_WINDOW_HEIGHT = 240;
 export const MENU_BAR_HEIGHT = 28;
 export const DOCK_AREA = 90;
 
+export function getEffectiveDockArea(dockVisible: boolean): number {
+  return dockVisible ? DOCK_AREA : 0;
+}
+
 export function getMaximizedWindowBounds(
   viewportWidth = globalThis.innerWidth,
-  viewportHeight = globalThis.innerHeight
+  viewportHeight = globalThis.innerHeight,
+  dockArea: number = DOCK_AREA
 ): ResizeRect {
   return {
     x: 0,
     y: MENU_BAR_HEIGHT,
     width: viewportWidth,
-    height: viewportHeight - MENU_BAR_HEIGHT - DOCK_AREA,
+    height: viewportHeight - MENU_BAR_HEIGHT - dockArea,
   };
 }
 
@@ -30,9 +35,12 @@ interface BoundsTargetInput {
 }
 
 /** Visual target for window bounds — keeps maximized store size during restore animation. */
-export function getWindowBoundsTarget(win: BoundsTargetInput): ResizeRect & { radius: number } {
+export function getWindowBoundsTarget(
+  win: BoundsTargetInput,
+  dockArea: number = DOCK_AREA
+): ResizeRect & { radius: number } {
   if (win.isMaximized) {
-    return { ...getMaximizedWindowBounds(), radius: 0 };
+    return { ...getMaximizedWindowBounds(undefined, undefined, dockArea), radius: 0 };
   }
   if (win.preMaximizeBounds) {
     return { ...win.preMaximizeBounds, radius: 12 };
@@ -65,6 +73,7 @@ interface ComputeResizeInput {
   dy: number;
   viewportWidth: number;
   viewportHeight: number;
+  dockArea?: number;
 }
 
 export function computeResizedWindow({
@@ -74,6 +83,7 @@ export function computeResizedWindow({
   dy,
   viewportWidth,
   viewportHeight,
+  dockArea = DOCK_AREA,
 }: ComputeResizeInput): ResizeRect {
   let x = start.x;
   let y = start.y;
@@ -127,7 +137,7 @@ export function computeResizedWindow({
   }
 
   const maxWidth = viewportWidth - x;
-  const maxHeight = viewportHeight - y - DOCK_AREA;
+  const maxHeight = viewportHeight - y - dockArea;
 
   if (affectsW) {
     width = Math.min(width, maxWidth);

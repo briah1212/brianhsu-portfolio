@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { Wallpaper } from "./Wallpaper";
+import { DesktopFolders } from "./DesktopFolders";
 import { MenuBar } from "./MenuBar";
 import { Dock } from "./Dock";
 import { WindowManager } from "@/components/window/Window";
@@ -76,6 +77,7 @@ export function Desktop() {
       {desktopReady && (
         <div className="desktop relative h-screen w-screen overflow-hidden">
           <Wallpaper />
+          <DesktopFolders />
           <MenuBar />
           <WindowManager />
           <Dock />

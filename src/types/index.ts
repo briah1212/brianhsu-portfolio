@@ -26,6 +26,13 @@ export interface WindowState {
   route?: string;
 }
 
+export type ProjectCategory =
+  | "academics"
+  | "work"
+  | "research"
+  | "systems"
+  | "personal";
+
 export interface ProjectLink {
   label: string;
   url: string;
@@ -36,6 +43,7 @@ export interface Project {
   title: string;
   tagline: string;
   description: string;
+  category: ProjectCategory;
   techStack: string[];
   problem: string;
   approach: string;

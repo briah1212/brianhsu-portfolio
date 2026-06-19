@@ -12,6 +12,7 @@ import {
 interface WindowResizeHandlesProps {
   windowId: string;
   disabled?: boolean;
+  dockArea?: number;
   onResizeStart: () => void;
   onResizeEnd: () => void;
   onResize: (updates: {
@@ -54,6 +55,7 @@ const HANDLES: { dir: ResizeDirection; className: string; style: React.CSSProper
 export function WindowResizeHandles({
   windowId,
   disabled,
+  dockArea,
   onResizeStart,
   onResizeEnd,
   onResize,
@@ -97,6 +99,7 @@ export function WindowResizeHandles({
           dy,
           viewportWidth: globalThis.innerWidth,
           viewportHeight: globalThis.innerHeight,
+          dockArea,
         });
 
         if (rafRef.current === null) {
@@ -127,7 +130,7 @@ export function WindowResizeHandles({
       document.addEventListener("pointerup", onPointerUp);
       document.addEventListener("pointercancel", onPointerUp);
     },
-    [disabled, flushResize, getWindowRect, onFocus, onResize, onResizeEnd, onResizeStart]
+    [disabled, dockArea, flushResize, getWindowRect, onFocus, onResize, onResizeEnd, onResizeStart]
   );
 
   if (disabled) return null;

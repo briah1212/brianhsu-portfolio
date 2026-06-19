@@ -12,7 +12,7 @@ import { getAppConfig } from "@/config/apps";
 import { AppContainer } from "@/components/apps/AppContainer";
 import { WindowResizeHandles } from "./WindowResizeHandles";
 import {
-  DOCK_AREA,
+  getEffectiveDockArea,
   getMaximizedWindowBounds,
   getWindowBoundsTarget,
   MENU_BAR_HEIGHT,
@@ -43,7 +43,10 @@ export function Window({ window: win }: WindowProps) {
     genieAppId,
     clearGenieOrigin,
     theme,
+    dockVisible,
   } = useWindowStore();
+
+  const effectiveDockArea = getEffectiveDockArea(dockVisible);
 
   const isActive = activeWindowId === win.id;
   const config = getAppConfig(win.appId);
@@ -96,7 +99,8 @@ export function Window({ window: win }: WindowProps) {
 
     const syncMaximizedBounds = () => {
       setIsViewportSync(true);
-      updateWindow(win.id, getMaximizedWindowBounds());
+      const area = getEffectiveDockArea(useWindowStore.getState().dockVisible);
+      updateWindow(win.id, getMaximizedWindowBounds(undefined, undefined, area));
     };
 
     globalThis.addEventListener("resize", syncMaximizedBounds);
@@ -110,7 +114,7 @@ export function Window({ window: win }: WindowProps) {
   }, [isViewportSync, win.x, win.y, win.width, win.height]);
 
   useEffect(() => {
-    const targets = getWindowBoundsTarget(win);
+    const targets = getWindowBoundsTarget(win, effectiveDockArea);
     const isMaximizeTransition = win.isMaximized || isRestoring;
     const instant = isDragging || isResizing || isViewportSync;
 
@@ -167,6 +171,7 @@ export function Window({ window: win }: WindowProps) {
     isDragging,
     isResizing,
     isViewportSync,
+    effectiveDockArea,
     boundsLeft,
     boundsTop,
     boundsWidth,
@@ -250,7 +255,7 @@ export function Window({ window: win }: WindowProps) {
         const dy = ev.clientY - dragStart.current.y;
         const { width, height } = dragSizeRef.current;
         const maxX = globalThis.innerWidth - width;
-        const maxY = globalThis.innerHeight - height - DOCK_AREA;
+        const maxY = globalThis.innerHeight - height - effectiveDockArea;
         pendingDrag.current = {
           x: Math.max(0, Math.min(maxX, dragStart.current.winX + dx)),
           y: Math.max(MENU_BAR_HEIGHT, Math.min(maxY, dragStart.current.winY + dy)),
@@ -291,6 +296,7 @@ export function Window({ window: win }: WindowProps) {
       win.id,
       updateWindow,
       flushDrag,
+      effectiveDockArea,
     ]
   );
 
@@ -407,6 +413,7 @@ export function Window({ window: win }: WindowProps) {
       <WindowResizeHandles
         windowId={win.id}
         disabled={win.isMaximized || isAnimatingBounds || isRestoring}
+        dockArea={effectiveDockArea}
         onFocus={() => focusWindow(win.id)}
         onResizeStart={() => setIsResizing(true)}
         onResizeEnd={() => setIsResizing(false)}

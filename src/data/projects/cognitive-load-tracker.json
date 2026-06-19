@@ -3,6 +3,7 @@
   "title": "Cognitive Load Tracker",
   "tagline": "Bridging HCI research and real-time software instrumentation",
   "description": "A research tool that correlates task-switching behavior with self-reported cognitive load, combining browser telemetry with validated psychometric scales.",
+  "category": "research",
   "techStack": ["TypeScript", "React", "Python", "Flask", "D3.js", "SQLite"],
   "problem": "Cognitive load is hard to measure in situ. Existing lab studies lack ecological validity; field studies lack structured instrumentation.",
   "approach": "Built a browser extension that logs focus events and tab switches, paired with periodic NASA-TLX micro-surveys. A Python backend aggregates sessions and visualizes load curves over time.",

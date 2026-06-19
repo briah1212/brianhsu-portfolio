@@ -1,8 +1,11 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { AnimatePresence } from "framer-motion";
+import { isProjectCategory } from "@/config/categories";
 import { getAllProjects, getProjectBySlug } from "@/data/projects";
 import { useWindowStore } from "@/store/windowStore";
+import { CategoryProjectsView } from "@/components/projects/CategoryProjectsView";
 import { ProjectCard } from "@/components/projects/ProjectCard";
 import { ProjectCaseStudy } from "@/components/projects/ProjectCaseStudy";
 
@@ -13,11 +16,30 @@ interface ProjectsAppProps {
 
 export function ProjectsApp({ windowId, route }: ProjectsAppProps) {
   const navigateInWindow = useWindowStore((s) => s.navigateInWindow);
-  const projects = getAllProjects();
-  const activeProject = route ? getProjectBySlug(route) : undefined;
+  const listRouteRef = useRef<string | undefined>(route);
+
+  useEffect(() => {
+    if (route && isProjectCategory(route)) {
+      listRouteRef.current = route;
+    } else if (!route) {
+      listRouteRef.current = undefined;
+    }
+  }, [route]);
 
   const openProject = (slug: string) => navigateInWindow(windowId, slug);
-  const goBack = () => navigateInWindow(windowId, undefined);
+
+  const goBack = () => navigateInWindow(windowId, listRouteRef.current);
+
+  if (route && isProjectCategory(route)) {
+    return (
+      <CategoryProjectsView
+        category={route}
+        onOpenProject={openProject}
+      />
+    );
+  }
+
+  const activeProject = route ? getProjectBySlug(route) : undefined;
 
   if (activeProject) {
     return (
@@ -30,6 +52,8 @@ export function ProjectsApp({ windowId, route }: ProjectsAppProps) {
       </AnimatePresence>
     );
   }
+
+  const projects = getAllProjects();
 
   return (
     <div className="app-content h-full overflow-y-auto p-5">

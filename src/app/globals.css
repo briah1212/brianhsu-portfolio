@@ -129,6 +129,68 @@ body {
   background: var(--menu-bar-hover);
 }
 
+.desktop-folders-row {
+  width: 100%;
+}
+
+.desktop-folder {
+  display: flex;
+  width: 72px;
+  flex-shrink: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: default;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.desktop-folder-icon {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.2));
+  transition: filter 0.15s ease;
+}
+
+.desktop-folder:hover .desktop-folder-icon {
+  filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.28));
+}
+
+.desktop-folder-svg {
+  display: block;
+  width: 56px;
+  height: 56px;
+  pointer-events: none;
+  user-select: none;
+}
+
+.desktop-folder-label {
+  width: 72px;
+  max-width: 72px;
+  text-align: center;
+  font-size: 11px;
+  line-height: 1.25;
+  color: var(--foreground);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+[data-theme="light"] .desktop-folder-label {
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.6);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .desktop-folder {
+    transform: none !important;
+  }
+}
+
 .menu-bar-status-icon {
   display: inline-flex;
   align-items: center;
@@ -475,6 +537,59 @@ body {
   border-right: 5px solid transparent;
   border-top-width: 5px;
   border-top-style: solid;
+}
+
+.dock-reveal-zone {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9997;
+  pointer-events: auto;
+}
+
+.dock-reveal-hint {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 36px;
+  z-index: 9996;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.dock-reveal-hint-pill {
+  display: block;
+  width: 40px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.28);
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+  animation: dock-hint-pulse 2.4s ease-in-out infinite;
+}
+
+[data-theme="light"] .dock-reveal-hint-pill {
+  background: rgba(30, 30, 35, 0.22);
+}
+
+@keyframes dock-hint-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scaleX(1);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scaleX(1.15);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dock-reveal-hint-pill {
+    animation: none;
+    opacity: 0.7;
+  }
 }
 
 .window {

@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useCallback, useLayoutEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   AnimatePresence,
   motion,
@@ -21,7 +21,16 @@ const DOCK_PADDING_TOP = 8;
 const DOCK_PADDING_BOTTOM = 14;
 const ICON_AREA_HEIGHT = 52;
 const DOCK_HEIGHT = DOCK_PADDING_TOP + ICON_AREA_HEIGHT + DOCK_PADDING_BOTTOM;
+const DOCK_BOTTOM_OFFSET = 12;
 const MAX_SCALE = 1.7;
+const MAGNIFICATION_OVERFLOW = ICON_SIZE * (MAX_SCALE - 1);
+const HIDE_OFFSET =
+  DOCK_BOTTOM_OFFSET + DOCK_HEIGHT + MAGNIFICATION_OVERFLOW + 8;
+const HIDE_DELAY_MS = 600;
+
+function getRevealProximityPx(): number {
+  return globalThis.innerHeight / 10;
+}
 const SIGMA = 50;
 
 const SPRING = { stiffness: 380, damping: 30, mass: 0.4 };
@@ -186,11 +195,58 @@ export function Dock() {
   const mouseX = useMotionValue(Number.POSITIVE_INFINITY);
   const rafRef = useRef<number | null>(null);
   const pendingX = useRef<number | null>(null);
+  const hideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const dockPointerDownRef = useRef(false);
+  const lastPointerYRef = useRef<number | null>(null);
+  const [reduceMotion, setReduceMotion] = useState(false);
 
   const openApp = useWindowStore((s) => s.openApp);
   const setDockPosition = useWindowStore((s) => s.setDockPosition);
   const windows = useWindowStore((s) => s.windows);
   const theme = useWindowStore((s) => s.theme);
+  const dockVisible = useWindowStore((s) => s.dockVisible);
+  const setDockVisible = useWindowStore((s) => s.setDockVisible);
+
+  const hasMaximizedWindow = windows.some(
+    (w) => w.isMaximized && !w.isMinimized
+  );
+
+  const clearHideTimeout = useCallback(() => {
+    if (hideTimeoutRef.current !== null) {
+      clearTimeout(hideTimeoutRef.current);
+      hideTimeoutRef.current = null;
+    }
+  }, []);
+
+  const showDock = useCallback(() => {
+    clearHideTimeout();
+    setDockVisible(true);
+  }, [clearHideTimeout, setDockVisible]);
+
+  const isInRevealProximity = useCallback((clientY: number) => {
+    return globalThis.innerHeight - clientY <= getRevealProximityPx();
+  }, []);
+
+  const scheduleHide = useCallback(() => {
+    if (!hasMaximizedWindow) return;
+    if (dockPointerDownRef.current) return;
+    const y = lastPointerYRef.current;
+    if (y !== null && isInRevealProximity(y)) return;
+    clearHideTimeout();
+    hideTimeoutRef.current = setTimeout(() => {
+      hideTimeoutRef.current = null;
+      const latestY = lastPointerYRef.current;
+      if (latestY !== null && isInRevealProximity(latestY)) return;
+      if (!dockPointerDownRef.current) {
+        setDockVisible(false);
+      }
+    }, HIDE_DELAY_MS);
+  }, [
+    hasMaximizedWindow,
+    clearHideTimeout,
+    setDockVisible,
+    isInRevealProximity,
+  ]);
 
   const flushMouseX = useCallback(() => {
     rafRef.current = null;
@@ -220,6 +276,24 @@ export function Dock() {
     mouseX.set(Number.POSITIVE_INFINITY);
   }, [mouseX]);
 
+  const handleDockEnter = useCallback(() => {
+    showDock();
+  }, [showDock]);
+
+  const handleDockLeave = useCallback(() => {
+    handleMouseLeave();
+    scheduleHide();
+  }, [handleMouseLeave, scheduleHide]);
+
+  const handleDockPointerDown = useCallback(() => {
+    dockPointerDownRef.current = true;
+    clearHideTimeout();
+  }, [clearHideTimeout]);
+
+  const handleDockPointerUp = useCallback(() => {
+    dockPointerDownRef.current = false;
+  }, []);
+
   const handleOpen = useCallback(
     (appId: AppId, el: HTMLButtonElement) => {
       const rect = el.getBoundingClientRect();
@@ -245,8 +319,77 @@ export function Dock() {
     };
   }, []);
 
+  useEffect(() => {
+    return () => clearHideTimeout();
+  }, [clearHideTimeout]);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReduceMotion(mq.matches);
+    const handler = () => setReduceMotion(mq.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+
+  useEffect(() => {
+    if (!hasMaximizedWindow && !dockVisible) {
+      setDockVisible(true);
+    }
+  }, [hasMaximizedWindow, dockVisible, setDockVisible]);
+
+  useEffect(() => {
+    if (!hasMaximizedWindow) return;
+
+    const handlePointerMove = (e: PointerEvent) => {
+      lastPointerYRef.current = e.clientY;
+      if (isInRevealProximity(e.clientY)) {
+        showDock();
+      }
+    };
+
+    globalThis.addEventListener("pointermove", handlePointerMove, {
+      passive: true,
+    });
+    return () =>
+      globalThis.removeEventListener("pointermove", handlePointerMove);
+  }, [hasMaximizedWindow, isInRevealProximity, showDock]);
+
+  const revealZoneActive = hasMaximizedWindow;
+  const showRevealHint = revealZoneActive && !dockVisible;
+  const revealZoneHeight = getRevealProximityPx();
+
   return (
-    <div className="pointer-events-none fixed bottom-3 left-0 right-0 z-[9998] flex justify-center overflow-visible">
+    <>
+      {revealZoneActive && (
+        <div
+          className="dock-reveal-zone"
+          style={{ height: revealZoneHeight }}
+          onMouseEnter={showDock}
+          onPointerMove={showDock}
+          aria-hidden
+        />
+      )}
+      {showRevealHint && (
+        <div className="dock-reveal-hint" aria-hidden>
+          <span className="dock-reveal-hint-pill" />
+        </div>
+      )}
+      <motion.div
+        className={`fixed bottom-3 left-0 right-0 z-[9998] flex justify-center overflow-visible ${
+          dockVisible ? "pointer-events-auto" : "pointer-events-none"
+        }`}
+        animate={{ y: dockVisible ? 0 : HIDE_OFFSET }}
+        transition={
+          reduceMotion
+            ? { duration: 0 }
+            : { type: "spring", stiffness: 380, damping: 32, mass: 0.8 }
+        }
+        onMouseEnter={handleDockEnter}
+        onMouseLeave={handleDockLeave}
+        onPointerDown={handleDockPointerDown}
+        onPointerUp={handleDockPointerUp}
+        onPointerCancel={handleDockPointerUp}
+      >
       <motion.div
         ref={dockRef}
         layout
@@ -264,7 +407,6 @@ export function Dock() {
           overflow: "visible",
         }}
         onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
       >
         {APPS.map((app, index) => (
           <DockIcon
@@ -278,6 +420,7 @@ export function Dock() {
           />
         ))}
       </motion.div>
-    </div>
+      </motion.div>
+    </>
   );
 }

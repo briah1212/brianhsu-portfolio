@@ -3,6 +3,7 @@
   "title": "ETA Prediction Pipeline",
   "tagline": "Internship project at Lyft — maps & routing",
   "description": "Contributed to feature engineering and evaluation infrastructure for ride ETA models, improving prediction accuracy on edge-case routes.",
+  "category": "work",
   "techStack": ["Python", "Spark", "Airflow", "Feature Stores", "A/B Testing"],
   "problem": "ETA errors on complex urban corridors disproportionately affect rider trust and driver dispatch efficiency.",
   "approach": "Built offline evaluation notebooks comparing model variants on stratified route segments. Shipped two features to the production pipeline after rigorous shadow testing.",

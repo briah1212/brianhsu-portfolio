@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { createTimeline, scrambleText } from "animejs";
 import type { Timeline } from "animejs";
 
@@ -174,10 +174,54 @@ export function LoadingScreen({ onRevealDesktop, onExitComplete }: LoadingScreen
   const flashRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLParagraphElement>(null);
   const subRef = useRef<HTMLParagraphElement>(null);
+  const timelineRef = useRef<Timeline | null>(null);
+  const fallbackRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const finishedRef = useRef(false);
   const onRevealRef = useRef(onRevealDesktop);
   const onExitRef = useRef(onExitComplete);
   onRevealRef.current = onRevealDesktop;
   onExitRef.current = onExitComplete;
+
+  const markExitComplete = useCallback(() => {
+    if (finishedRef.current) return;
+    finishedRef.current = true;
+    onExitRef.current();
+  }, []);
+
+  const runCinematicExit = useCallback(() => {
+    const overlay = overlayRef.current;
+    const content = contentRef.current;
+    const flash = flashRef.current;
+    if (!overlay || !content || !flash) {
+      onRevealRef.current();
+      markExitComplete();
+      return;
+    }
+
+    const exitTl = createTimeline({ autoplay: true });
+    addCinematicExit(
+      exitTl,
+      overlay,
+      content,
+      flash,
+      () => onRevealRef.current(),
+      markExitComplete
+    );
+    timelineRef.current = exitTl;
+  }, [markExitComplete]);
+
+  const skipBoot = useCallback(() => {
+    if (finishedRef.current) return;
+
+    if (fallbackRef.current) {
+      clearTimeout(fallbackRef.current);
+      fallbackRef.current = null;
+    }
+
+    timelineRef.current?.pause();
+    timelineRef.current?.revert();
+    runCinematicExit();
+  }, [runCinematicExit]);
 
   useEffect(() => {
     const overlay = overlayRef.current;
@@ -192,15 +236,16 @@ export function LoadingScreen({ onRevealDesktop, onExitComplete }: LoadingScreen
       return;
     }
 
-    let finished = false;
+    finishedRef.current = false;
+
     const forceExit = () => {
-      if (finished) return;
-      finished = true;
+      if (finishedRef.current) return;
       onRevealRef.current();
-      onExitRef.current();
+      markExitComplete();
     };
 
     const tl = createTimeline({ autoplay: true });
+    timelineRef.current = tl;
 
     BOOT_SEQUENCE.forEach((step, i) => {
       addBootStep(tl, mainEl, subEl, step, i === 0);
@@ -212,21 +257,18 @@ export function LoadingScreen({ onRevealDesktop, onExitComplete }: LoadingScreen
       content,
       flash,
       () => onRevealRef.current(),
-      () => {
-        if (finished) return;
-        finished = true;
-        onExitRef.current();
-      }
+      markExitComplete
     );
 
-    const fallback = setTimeout(forceExit, MAX_BOOT_MS);
+    fallbackRef.current = setTimeout(forceExit, MAX_BOOT_MS);
 
     return () => {
-      clearTimeout(fallback);
+      if (fallbackRef.current) clearTimeout(fallbackRef.current);
       tl.pause();
       tl.revert();
+      timelineRef.current = null;
     };
-  }, []);
+  }, [markExitComplete]);
 
   return (
     <div
@@ -257,6 +299,14 @@ export function LoadingScreen({ onRevealDesktop, onExitComplete }: LoadingScreen
           className="loading-sub mt-5 min-h-[1.25rem] font-mono text-[11px] tracking-[0.35em] text-[#00cc55]/75 uppercase sm:text-xs"
         />
       </div>
+      <button
+        type="button"
+        onClick={skipBoot}
+        className="loading-skip absolute right-5 bottom-5 z-30 font-mono text-xs tracking-[0.35em] text-[#00cc55]/70 uppercase transition-colors hover:text-[#00ff66]"
+        aria-label="Skip boot sequence"
+      >
+        Skip
+      </button>
     </div>
   );
 }

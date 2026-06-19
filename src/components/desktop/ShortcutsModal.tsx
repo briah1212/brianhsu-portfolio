@@ -11,6 +11,7 @@ const SHORTCUTS = [
   { keys: "Drag title bar", description: "Move window" },
   { keys: "Drag edges / corners", description: "Resize window" },
   { keys: "Green button", description: "Maximize / restore window" },
+  { keys: "Bottom of screen", description: "Show Dock while a window is maximized" },
 ];
 
 interface ShortcutsModalProps {
