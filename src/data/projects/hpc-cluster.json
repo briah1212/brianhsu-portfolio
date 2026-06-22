@@ -1,0 +1,27 @@
+{
+  "slug": "hpc-cluster",
+  "title": "HPC Cluster Build",
+  "tagline": "From-scratch bare-metal cluster: provisioning, InfiniBand networking, and verification",
+  "description": "Built and validated a multi-node HPC cluster from scratch at a national laboratory. Covered bare-metal node provisioning with iPXE and a custom boot server, SLURM workload management, InfiniBand fabric bring-up, and a measurement loop to verify that both IB and Ethernet paths were performing at expected bandwidth. The goal was not just to install software but to reason about and verify the system end-to-end.",
+  "category": "systems",
+  "techStack": [
+    "Rocky Linux",
+    "iPXE",
+    "SLURM",
+    "InfiniBand / RDMA",
+    "Ansible",
+    "Python",
+    "Bash",
+    "Prometheus",
+    "Grafana"
+  ],
+  "problem": "Standing up a new HPC cluster is straightforward with vendor scripts — but that leaves a black box. The challenge here was understanding and verifying the full provisioning and networking stack: how nodes boot from bare metal, how the InfiniBand fabric is initialized, and how to confirm that high-speed interconnects are actually delivering the bandwidth the hardware promises rather than silently falling back to slower paths.",
+  "constraints": "The cluster had to be built from bare metal with no prior configuration in place. All identifiers, hostnames, topology details, and employer-specific operational procedures have been removed from this write-up. What remains is a description of the techniques, decisions, and measurement approaches that are general to any comparable HPC cluster build. The system size and vendor details are omitted intentionally.",
+  "approach": "Started with the network boot layer: configured a PXE/iPXE server to hand out OS images over Ethernet, then automated node provisioning with kickstart files and Ansible playbooks. Once nodes were online, brought up the InfiniBand fabric and wrote benchmark scripts using standard RDMA tools to measure point-to-point and all-to-all bandwidth. Instrumented the cluster with Prometheus node exporters and a Grafana dashboard to make performance visible continuously, not just at install time.",
+  "solution": "A reproducible, automated provisioning flow that can re-image nodes from bare metal in under 20 minutes. The IB fabric reached expected line-rate bandwidth across the test topology. The measurement loop catches regressions: if a cable degrades or a port drops to a lower link speed, the Prometheus metrics alert before jobs see the slowdown. The SLURM configuration handles job scheduling, resource accounting, and basic fairshare across research groups.",
+  "architecture": "The cluster is organized in three layers. The management layer is a head node that runs the PXE/iPXE boot server, Ansible control plane, SLURM controller, and monitoring stack. The compute layer is a set of identical worker nodes that boot from the management node, mount shared storage over NFS, and connect to the InfiniBand fabric for inter-node traffic. The fabric layer is a separate high-speed interconnect for MPI and RDMA workloads — isolated from Ethernet management traffic so that a noisy management operation does not affect job communication. Provisioning is idempotent: re-running the Ansible playbooks against an already-configured node is safe and leaves it in the desired state.",
+  "tradeoffs": "iPXE over a flat management Ethernet is simple to debug but puts all provisioning traffic on the same network as management. Separating into a dedicated provisioning VLAN would improve isolation but adds switch configuration complexity that was not worth the cost at this cluster size. Using NFS for shared storage is easy to operate but is a single point of failure and does not scale to high-I/O workloads — a parallel filesystem would be the right next step. SLURM's fairshare algorithm requires careful weight tuning: the defaults did not reflect actual priority among research groups and had to be adjusted after observing real job queues.",
+  "learned": "The most important lesson was that 'it works' and 'it works correctly at the expected performance level' are different claims. A link that silently negotiates to a lower speed or falls back from RDMA to TCP passes basic connectivity tests but fails the application. Building measurement into the system from the start — rather than testing it once at install — is what turns a provisioning job into a reliable research platform. The second lesson: Ansible idempotency is only as good as the playbooks. Tasks that create resources without checking whether they already exist cause silent failures on re-runs and make debugging harder.",
+  "links": [],
+  "featured": true
+}

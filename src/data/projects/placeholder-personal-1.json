@@ -1,8 +1,8 @@
 {
   "slug": "placeholder-personal-1",
-  "title": "Project Title TBD",
-  "tagline": "Brief description coming soon.",
-  "description": "Full description coming soon.",
+  "title": "This Portfolio Site",
+  "tagline": "A fictional artifact OS built in Next.js — the site you're looking at right now",
+  "description": "A personal portfolio built as a fictional operating system interface in Next.js, serving as both a design exercise and a living record of projects and writing. Full case study coming soon.",
   "category": "personal",
   "techStack": [],
   "problem": "Coming soon.",
@@ -10,5 +10,6 @@
   "solution": "Coming soon.",
   "learned": "Coming soon.",
   "links": [],
-  "featured": false
+  "featured": false,
+  "comingSoon": true
 }

@@ -51,9 +51,17 @@ export interface Project {
   approach: string;
   solution: string;
   learned: string;
+  /** Optional: constraints & scope for deep case studies (sanitized) */
+  constraints?: string;
+  /** Optional: sanitized architecture overview for deep case studies */
+  architecture?: string;
+  /** Optional: explicit tradeoffs section for deep case studies */
+  tradeoffs?: string;
   links: ProjectLink[];
   image?: string;
   featured?: boolean;
+  /** If true this project is hidden from listings (placeholder not yet ready) */
+  comingSoon?: boolean;
 }
 
 export interface DockIconPosition {

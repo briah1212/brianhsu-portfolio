@@ -1,8 +1,8 @@
 {
   "slug": "placeholder-work-1",
-  "title": "Project Title TBD",
-  "tagline": "Brief description coming soon.",
-  "description": "Full description coming soon.",
+  "title": "MSK HPC Dashboard",
+  "tagline": "Open OnDemand portal for Memorial Sloan Kettering's research cluster — Ruby on Rails, SLURM monitoring",
+  "description": "A web-based HPC portal built on Open OnDemand to improve researcher access to Memorial Sloan Kettering's scientific computing cluster, with SLURM job monitoring and queue visibility. Full case study coming soon.",
   "category": "work",
   "techStack": [],
   "problem": "Coming soon.",
@@ -10,5 +10,6 @@
   "solution": "Coming soon.",
   "learned": "Coming soon.",
   "links": [],
-  "featured": false
+  "featured": false,
+  "comingSoon": true
 }

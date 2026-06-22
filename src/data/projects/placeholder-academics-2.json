@@ -1,8 +1,8 @@
 {
   "slug": "placeholder-academics-2",
-  "title": "Course Project TBD",
-  "tagline": "Brief description coming soon.",
-  "description": "Full description coming soon.",
+  "title": "EECS 485 Web Systems",
+  "tagline": "Full-stack search engine and social network — MapReduce, REST APIs, React",
+  "description": "A sequence of full-stack web projects building a scalable search engine with MapReduce-based indexing and a social network backed by REST APIs and a React frontend. Full case study coming soon.",
   "category": "academics",
   "techStack": [],
   "problem": "Coming soon.",
@@ -10,5 +10,6 @@
   "solution": "Coming soon.",
   "learned": "Coming soon.",
   "links": [],
-  "featured": false
+  "featured": false,
+  "comingSoon": true
 }

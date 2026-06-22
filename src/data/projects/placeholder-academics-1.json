@@ -1,8 +1,8 @@
 {
   "slug": "placeholder-academics-1",
-  "title": "Project Title TBD",
-  "tagline": "Brief description coming soon.",
-  "description": "Full description coming soon.",
+  "title": "EECS 482 OS Projects",
+  "tagline": "OS fundamentals: thread schedulers, virtual memory, and file systems in C++",
+  "description": "A series of systems programming projects covering core OS concepts including thread scheduling, virtual memory management, and file system implementation in C++. Full case study coming soon.",
   "category": "academics",
   "techStack": [],
   "problem": "Coming soon.",
@@ -10,5 +10,6 @@
   "solution": "Coming soon.",
   "learned": "Coming soon.",
   "links": [],
-  "featured": false
+  "featured": false,
+  "comingSoon": true
 }

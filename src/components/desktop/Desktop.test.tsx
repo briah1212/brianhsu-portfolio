@@ -115,4 +115,41 @@ describe("Desktop website", () => {
     expect(await screen.findByText("Projects in this category — more coming soon.")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Work-Stealing Thread Pool/i })).toBeInTheDocument();
   });
+
+  it("surfaces the flagship HPC cluster case study in the Systems folder", async () => {
+    await renderReadyDesktop();
+
+    fireEvent.keyDown(screen.getByRole("button", { name: "Systems" }), {
+      key: "Enter",
+    });
+
+    // Flagship project card visible in the category list — pick the first match
+    const flagshipCards = await screen.findAllByRole("button", { name: /HPC Cluster/i });
+    expect(flagshipCards.length).toBeGreaterThan(0);
+
+    // Click the one inside the Systems window (last opened window's card list)
+    fireEvent.click(flagshipCards[0]);
+
+    // Deep case study content — architecture and tradeoffs are only in the case study view
+    expect((await screen.findAllByRole("heading", { name: /HPC Cluster/i })).length).toBeGreaterThan(0);
+    expect(screen.getByText("Architecture")).toBeInTheDocument();
+    expect(screen.getByText("Tradeoffs")).toBeInTheDocument();
+    expect(screen.getAllByText("Problem").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("What I Learned").length).toBeGreaterThan(0);
+  });
+
+  it("case study cards surface the proof claim tagline so a reviewer can decide which to open", async () => {
+    await renderReadyDesktop();
+
+    fireEvent.keyDown(screen.getByRole("button", { name: "Systems" }), {
+      key: "Enter",
+    });
+
+    await screen.findAllByRole("button", { name: /HPC Cluster/i });
+
+    // The HPC tagline (proof claim preview) is visible as text
+    expect(
+      screen.getAllByText(/bare.metal|InfiniBand|provisioning|from.scratch/i).length
+    ).toBeGreaterThan(0);
+  });
 });

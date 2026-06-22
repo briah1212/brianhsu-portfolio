@@ -47,24 +47,34 @@ export function ProjectCaseStudy({ project, onBack }: ProjectCaseStudyProps) {
       <h2 className="text-lg font-semibold">{project.title}</h2>
       <p className="mt-1 text-sm text-foreground/50">{project.tagline}</p>
 
-      {/* Placeholder screenshot area */}
-      <div className="mt-4 flex h-32 items-center justify-center rounded-lg border border-dashed border-foreground/10">
-        <span className="text-xs text-foreground/25">
-          Screenshot / demo placeholder
-        </span>
-      </div>
+      {project.techStack.length > 0 && (
+        <p className="mt-3 text-xs text-sky-400/90">
+          {project.techStack.join(" · ")}
+        </p>
+      )}
 
       <p className="mt-4 text-sm leading-relaxed text-foreground/60">
         {project.description}
       </p>
 
-      <p className="mt-3 text-xs text-sky-400/90">
-        {project.techStack.join(" · ")}
-      </p>
-
       <Section title="Problem">{project.problem}</Section>
+
+      {project.constraints && (
+        <Section title="Constraints">{project.constraints}</Section>
+      )}
+
       <Section title="Approach">{project.approach}</Section>
+
+      {project.architecture && (
+        <Section title="Architecture">{project.architecture}</Section>
+      )}
+
       <Section title="Solution">{project.solution}</Section>
+
+      {project.tradeoffs && (
+        <Section title="Tradeoffs">{project.tradeoffs}</Section>
+      )}
+
       <Section title="What I Learned">{project.learned}</Section>
 
       {project.links.length > 0 && (

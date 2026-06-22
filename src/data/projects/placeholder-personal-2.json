@@ -1,8 +1,8 @@
 {
   "slug": "placeholder-personal-2",
-  "title": "Side Project TBD",
-  "tagline": "Brief description coming soon.",
-  "description": "Full description coming soon.",
+  "title": "Advent of Code",
+  "tagline": "Annual competitive programming — C++, Rust, and Python solutions",
+  "description": "A collection of solutions to Advent of Code puzzles across multiple years, written primarily in C++, Rust, and Python as a way to practice algorithmic thinking and explore new languages. Full case study coming soon.",
   "category": "personal",
   "techStack": [],
   "problem": "Coming soon.",
@@ -10,5 +10,6 @@
   "solution": "Coming soon.",
   "learned": "Coming soon.",
   "links": [],
-  "featured": false
+  "featured": false,
+  "comingSoon": true
 }

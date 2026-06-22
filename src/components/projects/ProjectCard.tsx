@@ -22,30 +22,37 @@ export function ProjectCard({ project, onClick, index }: ProjectCardProps) {
         <h3 className="text-sm font-semibold transition-colors group-hover:text-sky-400">
           {project.title}
         </h3>
-        {project.featured && (
-          <span className="shrink-0 rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-500">
-            Featured
-          </span>
-        )}
+        <div className="flex shrink-0 items-center gap-1.5">
+          {project.featured && (
+            <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-500">
+              Featured
+            </span>
+          )}
+        </div>
       </div>
-      <p className="mt-1 text-xs text-foreground/50 line-clamp-2">
+
+      {/* Proof claim tagline — what the reviewer should evaluate */}
+      <p className="mt-1 text-xs leading-relaxed text-foreground/55 line-clamp-2">
         {project.tagline}
       </p>
-      <div className="mt-2 flex flex-wrap gap-1">
-        {project.techStack.slice(0, 4).map((tech) => (
-          <span
-            key={tech}
-            className="text-[10px] text-foreground/40"
-          >
-            {tech}
-          </span>
-        ))}
-        {project.techStack.length > 4 && (
-          <span className="text-[10px] text-foreground/30">
-            +{project.techStack.length - 4}
-          </span>
-        )}
-      </div>
+
+      {project.techStack.length > 0 && (
+        <div className="mt-2 flex flex-wrap gap-1">
+          {project.techStack.slice(0, 4).map((tech) => (
+            <span
+              key={tech}
+              className="text-[10px] text-foreground/40"
+            >
+              {tech}
+            </span>
+          ))}
+          {project.techStack.length > 4 && (
+            <span className="text-[10px] text-foreground/30">
+              +{project.techStack.length - 4}
+            </span>
+          )}
+        </div>
+      )}
     </motion.button>
   );
 }
