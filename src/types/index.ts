@@ -33,6 +33,8 @@ export type ProjectCategory =
   | "systems"
   | "personal";
 
+export type DesktopIconId = "trash" | "calculator" | "fileImage";
+
 export interface ProjectLink {
   label: string;
   url: string;

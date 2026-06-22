@@ -14,6 +14,10 @@ export function Desktop() {
   const [desktopReady, setDesktopReady] = useState(false);
   const theme = useWindowStore((s) => s.theme);
   const hydrateTheme = useWindowStore((s) => s.hydrateTheme);
+  const hydrateFolderPositions = useWindowStore((s) => s.hydrateFolderPositions);
+  const hydrateDesktopIconPositions = useWindowStore(
+    (s) => s.hydrateDesktopIconPositions
+  );
   const activeWindowId = useWindowStore((s) => s.activeWindowId);
   const closeWindow = useWindowStore((s) => s.closeWindow);
   const windows = useWindowStore((s) => s.windows);
@@ -29,7 +33,9 @@ export function Desktop() {
 
   useEffect(() => {
     hydrateTheme();
-  }, [hydrateTheme]);
+    hydrateFolderPositions();
+    hydrateDesktopIconPositions();
+  }, [hydrateTheme, hydrateFolderPositions, hydrateDesktopIconPositions]);
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);

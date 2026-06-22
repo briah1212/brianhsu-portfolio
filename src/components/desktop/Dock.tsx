@@ -11,6 +11,7 @@ import {
   type MotionValue,
 } from "framer-motion";
 import { APPS } from "@/config/apps";
+import { isSvgAsset } from "@/config/assets";
 import { useWindowStore } from "@/store/windowStore";
 import type { AppConfig, AppId } from "@/types";
 
@@ -139,6 +140,7 @@ const DockIcon = memo(function DockIcon({
   });
 
   const topColor = lightenColor(app.color, 28);
+  const svgIcon = isSvgAsset(app.icon);
 
   return (
     <motion.div
@@ -156,23 +158,44 @@ const DockIcon = memo(function DockIcon({
       <motion.button
         ref={buttonRef}
         onClick={() => buttonRef.current && onOpen(app.id, buttonRef.current)}
-        className="dock-icon relative flex shrink-0 items-center justify-center rounded-[14px]"
-        style={{
-          width: ICON_SIZE,
-          height: ICON_SIZE,
-          scale: smoothScale,
-          originY: 1,
-          originX: 0.5,
-          background: `linear-gradient(180deg, ${topColor} 0%, ${app.color} 100%)`,
-          boxShadow:
-            "0 2px 6px rgba(0,0,0,0.32), inset 0 1px 0 rgba(255,255,255,0.35)",
-          border: "1px solid rgba(255,255,255,0.18)",
-        }}
+        className={`dock-icon relative flex shrink-0 items-center justify-center rounded-[14px] ${
+          svgIcon ? "dock-icon-svg" : ""
+        }`}
+        style={
+          svgIcon
+            ? {
+                width: ICON_SIZE,
+                height: ICON_SIZE,
+                scale: smoothScale,
+                originY: 1,
+                originX: 0.5,
+              }
+            : {
+                width: ICON_SIZE,
+                height: ICON_SIZE,
+                scale: smoothScale,
+                originY: 1,
+                originX: 0.5,
+                background: `linear-gradient(180deg, ${topColor} 0%, ${app.color} 100%)`,
+                boxShadow:
+                  "0 2px 6px rgba(0,0,0,0.32), inset 0 1px 0 rgba(255,255,255,0.35)",
+                border: "1px solid rgba(255,255,255,0.18)",
+              }
+        }
         aria-label={`Open ${app.title}`}
       >
-        <span className="select-none text-[22px] leading-none drop-shadow-sm">
-          {app.icon}
-        </span>
+        {svgIcon ? (
+          <img
+            src={app.icon}
+            alt=""
+            className="dock-icon-image"
+            draggable={false}
+          />
+        ) : (
+          <span className="select-none text-[22px] leading-none drop-shadow-sm">
+            {app.icon}
+          </span>
+        )}
       </motion.button>
 
       <AnimatePresence>

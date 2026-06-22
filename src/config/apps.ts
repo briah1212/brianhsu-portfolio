@@ -1,10 +1,11 @@
 import type { AppConfig } from "@/types";
+import { DESKTOP_ASSETS } from "./assets";
 
 export const APPS: AppConfig[] = [
   {
     id: "home",
     title: "Home",
-    icon: "🏠",
+    icon: DESKTOP_ASSETS.book,
     color: "#5AC8FA",
     defaultSize: { width: 520, height: 420 },
     defaultPosition: { x: 120, y: 93 },
@@ -12,7 +13,7 @@ export const APPS: AppConfig[] = [
   {
     id: "about",
     title: "About",
-    icon: "👤",
+    icon: DESKTOP_ASSETS.fileNormal,
     color: "#AF52DE",
     defaultSize: { width: 730, height: 560 },
     defaultPosition: { x: 670, y: 95 },
@@ -20,21 +21,21 @@ export const APPS: AppConfig[] = [
   {
     id: "projects",
     title: "Projects",
-    icon: "💼",
+    icon: DESKTOP_ASSETS.folder,
     color: "#FF9500",
     defaultSize: { width: 720, height: 560 },
   },
   {
     id: "contact",
     title: "Contact",
-    icon: "✉️",
+    icon: DESKTOP_ASSETS.mail,
     color: "#34C759",
     defaultSize: { width: 440, height: 400 },
   },
   {
     id: "terminal",
     title: "Terminal",
-    icon: "⌨️",
+    icon: DESKTOP_ASSETS.fileCode,
     color: "#1C1C1E",
     defaultSize: { width: 600, height: 400 },
   },

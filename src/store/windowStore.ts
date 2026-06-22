@@ -5,9 +5,15 @@ import {
   getMaximizedWindowBounds,
   getEffectiveDockArea,
 } from "@/components/window/resizeUtils";
-import type { AppId, DockIconPosition, WindowState } from "@/types";
+import type { AppId, DesktopIconId, DockIconPosition, ProjectCategory, WindowState } from "@/types";
+import {
+  getDefaultFolderPositions,
+  getDefaultDesktopIconPositions,
+} from "@/config/desktopLayout";
 
 const THEME_STORAGE_KEY = "portfolio-theme";
+const FOLDER_POSITIONS_KEY = "portfolio:folder-positions";
+const DESKTOP_ICON_POSITIONS_KEY = "portfolio:desktop-icon-positions";
 
 function hasMaximizedWindow(windows: WindowState[]): boolean {
   return windows.some((w) => w.isMaximized && !w.isMinimized);
@@ -28,6 +34,8 @@ interface WindowStore {
   genieOrigin: { x: number; y: number } | null;
   genieAppId: AppId | null;
   dockVisible: boolean;
+  folderPositions: Record<ProjectCategory, { x: number; y: number }>;
+  desktopIconPositions: Record<DesktopIconId, { x: number; y: number }>;
 
   setDockPosition: (appId: AppId, x: number, y: number) => void;
   openApp: (appId: AppId, route?: string) => void;
@@ -42,6 +50,18 @@ interface WindowStore {
   toggleTheme: () => void;
   hydrateTheme: () => void;
   setDockVisible: (visible: boolean) => void;
+  updateFolderPosition: (
+    categoryId: ProjectCategory,
+    x: number,
+    y: number
+  ) => void;
+  hydrateFolderPositions: () => void;
+  updateDesktopIconPosition: (
+    iconId: DesktopIconId,
+    x: number,
+    y: number
+  ) => void;
+  hydrateDesktopIconPositions: () => void;
   closeAllWindows: () => void;
   openAllApps: () => void;
   bringAllToFront: () => void;
@@ -71,6 +91,8 @@ export const useWindowStore = create<WindowStore>((set, get) => ({
   genieOrigin: null,
   genieAppId: null,
   dockVisible: true,
+  folderPositions: getDefaultFolderPositions(),
+  desktopIconPositions: getDefaultDesktopIconPositions(),
 
   setDockPosition: (appId, x, y) =>
     set((state) => ({
@@ -295,6 +317,70 @@ export const useWindowStore = create<WindowStore>((set, get) => ({
   hydrateTheme: () => {
     const stored = readStoredTheme();
     if (stored) set({ theme: stored });
+  },
+
+  updateFolderPosition: (categoryId, x, y) =>
+    set((state) => {
+      const folderPositions = {
+        ...state.folderPositions,
+        [categoryId]: { x, y },
+      };
+      if (typeof window !== "undefined") {
+        localStorage.setItem(
+          FOLDER_POSITIONS_KEY,
+          JSON.stringify(folderPositions)
+        );
+      }
+      return { folderPositions };
+    }),
+
+  hydrateFolderPositions: () => {
+    if (typeof window === "undefined") return;
+    const defaults = getDefaultFolderPositions();
+    try {
+      const raw = localStorage.getItem(FOLDER_POSITIONS_KEY);
+      if (!raw) return;
+      const stored = JSON.parse(raw) as Partial<
+        Record<ProjectCategory, { x: number; y: number }>
+      >;
+      set({
+        folderPositions: { ...defaults, ...stored },
+      });
+    } catch {
+      /* ignore invalid stored positions */
+    }
+  },
+
+  updateDesktopIconPosition: (iconId, x, y) =>
+    set((state) => {
+      const desktopIconPositions = {
+        ...state.desktopIconPositions,
+        [iconId]: { x, y },
+      };
+      if (typeof window !== "undefined") {
+        localStorage.setItem(
+          DESKTOP_ICON_POSITIONS_KEY,
+          JSON.stringify(desktopIconPositions)
+        );
+      }
+      return { desktopIconPositions };
+    }),
+
+  hydrateDesktopIconPositions: () => {
+    if (typeof window === "undefined") return;
+    const defaults = getDefaultDesktopIconPositions();
+    try {
+      const raw = localStorage.getItem(DESKTOP_ICON_POSITIONS_KEY);
+      if (!raw) return;
+      const stored = JSON.parse(raw) as Partial<
+        Record<DesktopIconId, { x: number; y: number }>
+      >;
+      set({
+        desktopIconPositions: { ...defaults, ...stored },
+      });
+    } catch {
+      /* ignore invalid stored positions */
+    }
   },
 
   setDockVisible: (visible) => {
