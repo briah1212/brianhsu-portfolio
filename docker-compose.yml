@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  portfolio:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      # Mount source for hot reload
+      - ./src:/app/src
+      - ./public:/app/public
+      # Don't mount node_modules (use container's version)
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    command: npm run dev
+    stdin_open: true
+    tty: true
+
+  # Production build preview
+  portfolio-prod:
+    build: .
+    ports:
+      - "3001:3000"
+    command: sh -c "npm run build && npx serve@latest out -l 3000"
+    profiles:
+      - prod
