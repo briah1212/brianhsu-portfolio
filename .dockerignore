@@ -6,3 +6,16 @@ out
 *.log
 .DS_Store
 .env*.local
+*.md
+!package*.json
+.dockerignore
+Dockerfile
+docker-compose.yml
+*.sh
+.start
+coverage
+.vscode
+.idea
+*.test.ts
+*.test.tsx
+__tests__

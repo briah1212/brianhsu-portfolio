@@ -1,0 +1,80 @@
+╔══════════════════════════════════════════════════════════╗
+║           PORTFOLIO DISCRETE CONTAINER SETUP             ║
+╚══════════════════════════════════════════════════════════╝
+
+┌─────────────────────────────────────────────────────────┐
+│ SETUP (One-Time)                                        │
+└─────────────────────────────────────────────────────────┘
+  cd ~/brianhsu-portfolio
+  ./brian.sh start
+  
+  Output: "Ready on :1234"
+
+┌─────────────────────────────────────────────────────────┐
+│ PORT FORWARD (From Local Machine)                      │
+└─────────────────────────────────────────────────────────┘
+  ssh -L 1234:localhost:1234 brianhsu@pn2501748.lanl.gov
+  
+  Open: http://localhost:1234
+
+┌─────────────────────────────────────────────────────────┐
+│ QUICK COMMANDS                                          │
+└─────────────────────────────────────────────────────────┘
+  ./brian.sh status    # Check if running
+  ./brian.sh logs      # View logs
+  ./brian.sh restart   # Restart container
+  ./brian.sh stop      # Stop container
+
+┌─────────────────────────────────────────────────────────┐
+│ AUTO-START (Optional)                                   │
+└─────────────────────────────────────────────────────────┘
+  echo '~/brianhsu-portfolio/.start' >> ~/.bashrc
+
+┌─────────────────────────────────────────────────────────┐
+│ EDIT & RELOAD                                           │
+└─────────────────────────────────────────────────────────┘
+  vim ~/brianhsu-portfolio/src/components/apps/TerminalApp.tsx
+  
+  Changes appear instantly in browser!
+
+┌─────────────────────────────────────────────────────────┐
+│ DISCRETE FEATURES                                       │
+└─────────────────────────────────────────────────────────┘
+  ✓ Container name: "brian" (not obvious)
+  ✓ Port: 1234 (not standard dev port)
+  ✓ Localhost only (not exposed externally)
+  ✓ Auto-restart (survives reboots)
+  ✓ Silent startup (no spam)
+  ✓ Works with docker OR podman
+
+┌─────────────────────────────────────────────────────────┐
+│ TEST TERMINAL                                           │
+└─────────────────────────────────────────────────────────┘
+  Commands to try:
+    neofetch        # ASCII art + info
+    ls projects     # List all projects
+    cd work         # Open Work folder
+    cat hpc-cluster # Preview project
+    help            # Show all commands
+    
+  Features:
+    • Tab completion (hel[TAB] → help)
+    • Command history (↑/↓ arrows)
+    • Easter eggs (sudo, pwd, exit)
+
+┌─────────────────────────────────────────────────────────┐
+│ TROUBLESHOOTING                                         │
+└─────────────────────────────────────────────────────────┘
+  Port in use:
+    lsof -i :1234
+    kill -9 <PID>
+  
+  Container stuck:
+    ./brian.sh restart
+  
+  Clean everything:
+    ./brian.sh clean
+
+╔══════════════════════════════════════════════════════════╗
+║ Files: brian.sh, .start, DISCRETE.md, STEALTH.md        ║
+╚══════════════════════════════════════════════════════════╝
