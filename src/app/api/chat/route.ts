@@ -145,17 +145,20 @@ export async function POST(request: NextRequest) {
         apiKey: process.env.ANTHROPIC_API_KEY,
       });
 
-      const claudeMessages = messages.map((msg: any) => ({
-        role: msg.role === "assistant" ? "assistant" : "user",
-        content: msg.content,
-      }));
+      // Filter and format messages for Claude (must alternate user/assistant)
+      const claudeMessages = messages
+        .filter((msg: any) => msg.role !== "system")
+        .map((msg: any) => ({
+          role: msg.role === "assistant" ? ("assistant" as const) : ("user" as const),
+          content: msg.content,
+        }));
 
       const claudeCompletion = await anthropic.messages.create({
         model: "claude-3-5-sonnet-20241022",
         max_tokens: 500,
         system: SYSTEM_PROMPT,
         messages: claudeMessages,
-      });
+      }) as Anthropic.Messages.Message;
 
       const claudeMessage = claudeCompletion.content[0];
       const assistantMessage =
