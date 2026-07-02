@@ -1,5 +1,6 @@
 import { Desktop } from "@/components/desktop/Desktop";
 import { MobileView } from "@/components/mobile/MobileView";
+import { ChatButton } from "@/components/chatbot/ChatButton";
 
 export default function Home() {
   return (
@@ -13,6 +14,9 @@ export default function Home() {
       <div className="md:hidden">
         <MobileView />
       </div>
+
+      {/* AI Chatbot - Available on all screen sizes */}
+      <ChatButton />
     </>
   );
 }
