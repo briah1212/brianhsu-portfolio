@@ -46,6 +46,13 @@ export const APPS: AppConfig[] = [
     color: "#FF3B30",
     defaultSize: { width: 280, height: 380 },
   },
+  {
+    id: "photos",
+    title: "Photos",
+    icon: DESKTOP_ASSETS.fileImage,
+    color: "#FF2D55",
+    defaultSize: { width: 720, height: 560 },
+  },
 ];
 
 export function getAppConfig(appId: string): AppConfig | undefined {

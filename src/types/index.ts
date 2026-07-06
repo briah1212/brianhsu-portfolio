@@ -1,4 +1,4 @@
-export type AppId = "home" | "about" | "projects" | "contact" | "terminal" | "calculator";
+export type AppId = "home" | "about" | "projects" | "contact" | "terminal" | "calculator" | "photos" | "trash";
 
 export interface AppConfig {
   id: AppId;
