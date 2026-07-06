@@ -53,6 +53,13 @@ export const APPS: AppConfig[] = [
     color: "#FF2D55",
     defaultSize: { width: 720, height: 560 },
   },
+  {
+    id: "trash",
+    title: "Trash",
+    icon: DESKTOP_ASSETS.trash,
+    color: "#8E8E93",
+    defaultSize: { width: 720, height: 560 },
+  },
 ];
 
 export function getAppConfig(appId: string): AppConfig | undefined {
