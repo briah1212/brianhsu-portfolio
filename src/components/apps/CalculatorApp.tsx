@@ -153,12 +153,12 @@ export function CalculatorApp() {
   ]);
 
   return (
-    <div className="app-content flex h-full w-full flex-col p-4">
+    <div className="app-content flex h-full w-full flex-col p-5">
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="flex h-full w-full flex-col justify-between"
+        className="flex h-full w-full flex-col gap-4"
       >
         {/* Display */}
         <div className="flex-shrink-0 rounded-xl border border-foreground/8 bg-foreground/3 px-5 py-5 backdrop-blur-sm">
@@ -168,7 +168,7 @@ export function CalculatorApp() {
         </div>
 
         {/* Button Grid */}
-        <div className="grid flex-1 grid-cols-4 grid-rows-5 gap-2">
+        <div className="grid flex-1 grid-cols-4 grid-rows-5 gap-2.5">
           {/* Row 1 */}
           <CalcButton onClick={handleClear} variant="function">
             C
