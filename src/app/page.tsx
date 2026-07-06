@@ -1,10 +1,24 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import { Desktop } from "@/components/desktop/Desktop";
 import { MobileView } from "@/components/mobile/MobileView";
 import { ChatButton } from "@/components/chatbot/ChatButton";
 
 export default function Home() {
-  // Only show chatbot in production (Vercel) where API keys are configured
+  const [desktopLoaded, setDesktopLoaded] = useState(false);
+  
+  // Only show chatbot in production where API keys are configured
   const showChatbot = process.env.NODE_ENV === 'production';
+
+  useEffect(() => {
+    // Wait for loading screen to finish (approximately 3 seconds)
+    const timer = setTimeout(() => {
+      setDesktopLoaded(true);
+    }, 3000);
+    
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <>
@@ -18,8 +32,8 @@ export default function Home() {
         <MobileView />
       </div>
 
-      {/* AI Chatbot - Only in production where env vars are set */}
-      {showChatbot && <ChatButton />}
+      {/* AI Chatbot - Only in production and after loading screen */}
+      {showChatbot && desktopLoaded && <ChatButton />}
     </>
   );
 }
