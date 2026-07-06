@@ -432,15 +432,31 @@ export function Dock() {
         onMouseMove={handleMouseMove}
       >
         {APPS.map((app, index) => (
-          <DockIcon
-            key={app.id}
-            app={app}
-            index={index}
-            mouseX={mouseX}
-            isOpen={isAppOpen(app.id)}
-            theme={theme}
-            onOpen={handleOpen}
-          />
+          <>
+            {/* Add separator before calculator (after terminal) */}
+            {index === 5 && (
+              <div
+                key="dock-separator"
+                className="dock-separator"
+                style={{
+                  width: '1px',
+                  height: '48px',
+                  marginLeft: '4px',
+                  marginRight: '4px',
+                  alignSelf: 'center',
+                }}
+              />
+            )}
+            <DockIcon
+              key={app.id}
+              app={app}
+              index={index}
+              mouseX={mouseX}
+              isOpen={isAppOpen(app.id)}
+              theme={theme}
+              onOpen={handleOpen}
+            />
+          </>
         ))}
       </motion.div>
       </motion.div>
