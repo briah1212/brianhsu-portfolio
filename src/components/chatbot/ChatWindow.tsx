@@ -129,7 +129,7 @@ export function ChatWindow({ isOpen, onClose }: ChatWindowProps) {
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 20, scale: 0.95 }}
         transition={{ duration: 0.2 }}
-        className="fixed bottom-24 right-6 z-[50] flex flex-col rounded-[12px] border border-[var(--window-border)] bg-[var(--window-bg)] shadow-2xl"
+        className="fixed bottom-24 right-6 z-[9990] flex flex-col rounded-[12px] border border-[var(--window-border)] bg-[var(--window-bg)] shadow-2xl"
         style={{
           width: "min(420px, calc(100vw - 48px))",
           height: "min(600px, calc(100vh - 160px))",
