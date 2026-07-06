@@ -38,6 +38,22 @@ export function DesktopFolders() {
     [updateDesktopIconPosition]
   );
 
+  const handleOpenIcon = useCallback(
+    (iconId: DesktopIconId) => {
+      // Map desktop icon IDs to app IDs
+      const iconToAppMap: Record<DesktopIconId, string> = {
+        trash: "trash",
+        calculator: "calculator",
+        fileImage: "photos",
+      };
+      const appId = iconToAppMap[iconId];
+      if (appId) {
+        openApp(appId as any);
+      }
+    },
+    [openApp]
+  );
+
   return (
     <div className="desktop-folders pointer-events-none absolute inset-0 z-[5]">
       {PROJECT_CATEGORIES.map((category) => {
@@ -67,6 +83,7 @@ export function DesktopFolders() {
             iconSrc={icon.iconSrc}
             x={position.x}
             y={position.y}
+            onActivate={() => handleOpenIcon(icon.id)}
             onPositionChange={(x, y) =>
               handleIconPositionChange(icon.id, x, y)
             }
