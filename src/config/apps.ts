@@ -39,6 +39,13 @@ export const APPS: AppConfig[] = [
     color: "#1C1C1E",
     defaultSize: { width: 600, height: 400 },
   },
+  {
+    id: "calculator",
+    title: "Calculator",
+    icon: DESKTOP_ASSETS.calculator,
+    color: "#FF3B30",
+    defaultSize: { width: 280, height: 380 },
+  },
 ];
 
 export function getAppConfig(appId: string): AppConfig | undefined {
