@@ -3,6 +3,9 @@ import { MobileView } from "@/components/mobile/MobileView";
 import { ChatButton } from "@/components/chatbot/ChatButton";
 
 export default function Home() {
+  // Only show chatbot in production (Vercel) where API keys are configured
+  const showChatbot = process.env.NODE_ENV === 'production';
+
   return (
     <>
       {/* Desktop: fictional artifact OS (hidden on small screens) */}
@@ -15,8 +18,8 @@ export default function Home() {
         <MobileView />
       </div>
 
-      {/* AI Chatbot - Available on all screen sizes */}
-      <ChatButton />
+      {/* AI Chatbot - Only in production where env vars are set */}
+      {showChatbot && <ChatButton />}
     </>
   );
 }
