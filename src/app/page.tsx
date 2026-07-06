@@ -12,10 +12,11 @@ export default function Home() {
   const showChatbot = process.env.NODE_ENV === 'production';
 
   useEffect(() => {
-    // Wait for loading screen to finish (approximately 3 seconds)
+    // Wait for loading screen + desktop reveal + windows to open
+    // Loading screen: ~2.8s + desktop reveal: ~0.5s + windows open: ~0.3s = ~3.6s
     const timer = setTimeout(() => {
       setDesktopLoaded(true);
-    }, 3000);
+    }, 4000); // 4 seconds to be safe
     
     return () => clearTimeout(timer);
   }, []);
@@ -32,7 +33,7 @@ export default function Home() {
         <MobileView />
       </div>
 
-      {/* AI Chatbot - Only in production and after loading screen */}
+      {/* AI Chatbot - Behind windows (z-50) but clickable when visible */}
       {showChatbot && desktopLoaded && <ChatButton />}
     </>
   );
