@@ -8,10 +8,15 @@ import { ChatWindow } from "./ChatWindow";
 export function ChatButton() {
   const [isOpen, setIsOpen] = useState(false);
 
+  const handleClick = () => {
+    console.log("ChatButton clicked! Current state:", isOpen);
+    setIsOpen(!isOpen);
+  };
+
   return (
     <>
       <motion.button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={handleClick}
         className="fixed bottom-6 right-6 z-[10002] flex h-14 w-14 items-center justify-center rounded-full bg-[#007aff] text-white shadow-xl transition-all hover:bg-[#0051d5] hover:shadow-2xl"
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
@@ -21,6 +26,8 @@ export function ChatButton() {
         style={{
           boxShadow:
             "0 8px 24px rgba(0, 122, 255, 0.35), 0 2px 8px rgba(0, 0, 0, 0.15)",
+          pointerEvents: "auto",
+          cursor: "pointer",
         }}
         aria-label="Open chat"
       >
