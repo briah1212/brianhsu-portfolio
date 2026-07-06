@@ -153,22 +153,22 @@ export function CalculatorApp() {
   ]);
 
   return (
-    <div className="app-content flex h-full w-full flex-col items-center justify-center p-6">
+    <div className="app-content flex h-full w-full flex-col p-4">
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="w-full max-w-[280px]"
+        className="flex h-full w-full flex-col"
       >
         {/* Display */}
-        <div className="mb-4 rounded-lg border border-foreground/10 bg-foreground/5 px-5 py-6 backdrop-blur-sm">
-          <div className="overflow-hidden text-ellipsis whitespace-nowrap text-right text-4xl font-light tracking-tight text-foreground">
+        <div className="mb-3 flex-shrink-0 rounded-xl border border-foreground/8 bg-foreground/3 px-5 py-5 backdrop-blur-sm">
+          <div className="overflow-hidden text-ellipsis whitespace-nowrap text-right text-3xl font-light tracking-tight text-foreground">
             {display}
           </div>
         </div>
 
         {/* Button Grid */}
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid flex-1 grid-cols-4 gap-2 content-center">
           {/* Row 1 */}
           <CalcButton onClick={handleClear} variant="function">
             C
@@ -234,24 +234,22 @@ function CalcButton({
   variant = "number",
   className = "",
 }: CalcButtonProps) {
-  const baseStyles = "rounded-lg text-base font-medium transition-all border";
+  const baseStyles = "rounded-xl text-base font-normal transition-all border";
   const variantStyles = {
     number: 
-      "bg-foreground/5 border-foreground/10 text-foreground hover:bg-foreground/10 hover:border-foreground/15 active:bg-foreground/15",
+      "bg-foreground/3 border-foreground/6 text-foreground hover:bg-foreground/6 hover:border-foreground/10 active:bg-foreground/8",
     operator: 
-      "bg-sky-400/10 border-sky-400/30 text-sky-400 hover:bg-sky-400/20 hover:border-sky-400/40 active:bg-sky-400/30",
+      "bg-sky-400/8 border-sky-400/20 text-sky-400 hover:bg-sky-400/15 hover:border-sky-400/30 active:bg-sky-400/20",
     function: 
-      "bg-foreground/8 border-foreground/15 text-foreground/70 hover:bg-foreground/12 hover:text-foreground active:bg-foreground/15",
+      "bg-foreground/5 border-foreground/10 text-foreground/60 hover:bg-foreground/8 hover:text-foreground/80 active:bg-foreground/10",
   };
 
   return (
     <motion.button
-      whileTap={{ scale: 0.97 }}
-      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+      whileHover={{ scale: 1.01 }}
       onClick={onClick}
-      className={`${baseStyles} ${variantStyles[variant]} ${className} h-14 ${
-        className.includes("col-span-2") ? "" : "w-14"
-      }`}
+      className={`${baseStyles} ${variantStyles[variant]} ${className} h-full min-h-[48px]`}
     >
       {children}
     </motion.button>
