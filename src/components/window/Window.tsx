@@ -412,7 +412,7 @@ export function Window({ window: win }: WindowProps) {
 
       <WindowResizeHandles
         windowId={win.id}
-        disabled={win.isMaximized || isAnimatingBounds || isRestoring}
+        disabled={win.isMaximized || isAnimatingBounds || isRestoring || config?.resizable === false}
         dockArea={effectiveDockArea}
         onFocus={() => focusWindow(win.id)}
         onResizeStart={() => setIsResizing(true)}

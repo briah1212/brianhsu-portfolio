@@ -44,7 +44,8 @@ export const APPS: AppConfig[] = [
     title: "Calculator",
     icon: DESKTOP_ASSETS.calculator,
     color: "#FF3B30",
-    defaultSize: { width: 300, height: 420 },
+    defaultSize: { width: 320, height: 480 },
+    resizable: false,
   },
   {
     id: "photos",

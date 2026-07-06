@@ -7,6 +7,7 @@ export interface AppConfig {
   color: string;
   defaultSize: { width: number; height: number };
   defaultPosition?: { x: number; y: number };
+  resizable?: boolean; // Allow window resizing (default: true)
 }
 
 export interface WindowState {
