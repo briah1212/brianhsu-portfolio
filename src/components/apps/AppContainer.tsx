@@ -6,6 +6,7 @@ import { AboutApp } from "./AboutApp";
 import { ProjectsApp } from "./ProjectsApp";
 import { ContactApp } from "./ContactApp";
 import { TerminalApp } from "./TerminalApp";
+import { PhotosApp } from "./PhotosApp";
 
 interface AppContainerProps {
   appId: AppId;
@@ -25,6 +26,8 @@ export function AppContainer({ appId, windowId, route }: AppContainerProps) {
       return <ContactApp />;
     case "terminal":
       return <TerminalApp />;
+    case "photos":
+      return <PhotosApp />;
     default:
       return null;
   }
