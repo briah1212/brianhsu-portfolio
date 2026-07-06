@@ -303,18 +303,22 @@ export function Window({ window: win }: WindowProps) {
   const handleToggleMaximize = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation();
+      // Prevent maximize if window is not resizable
+      if (config?.resizable === false) return;
       toggleMaximizeWindow(win.id);
     },
-    [toggleMaximizeWindow, win.id]
+    [toggleMaximizeWindow, win.id, config?.resizable]
   );
 
   const getWindowRect = useCallback(() => winRectRef.current, []);
 
   const handleResize = useCallback(
     (updates: { x: number; y: number; width: number; height: number }) => {
+      // Prevent resize if window is not resizable
+      if (config?.resizable === false) return;
       updateWindow(win.id, updates);
     },
-    [updateWindow, win.id]
+    [updateWindow, win.id, config?.resizable]
   );
 
   if (win.isMinimized) return null;
@@ -394,9 +398,10 @@ export function Window({ window: win }: WindowProps) {
             onClick={handleToggleMaximize}
             className={`traffic-light traffic-maximize ${
               win.isMaximized ? "traffic-maximize-active" : ""
-            }`}
+            } ${config?.resizable === false ? "opacity-30 cursor-not-allowed" : ""}`}
             aria-label={win.isMaximized ? "Restore" : "Maximize"}
             aria-pressed={win.isMaximized}
+            disabled={config?.resizable === false}
           />
         </div>
         <div className="w-[52px] shrink-0" />
