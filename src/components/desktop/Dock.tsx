@@ -70,7 +70,7 @@ interface DockTooltipProps {
 function DockTooltip({ title, theme, opacity, y, visible }: DockTooltipProps) {
   return (
     <motion.div
-      className={`dock-tooltip pointer-events-none absolute left-1/2 z-20 -translate-x-1/2 whitespace-nowrap rounded-[6px] px-2.5 py-1 text-[11px] font-medium ${
+      className={`dock-tooltip pointer-events-none absolute left-1/2 z-20 -translate-x-1/2 whitespace-nowrap rounded-[7px] px-3 py-1.5 text-xs font-medium ${
         theme === "dark"
           ? "bg-neutral-700/95 text-white"
           : "bg-white text-neutral-800"
