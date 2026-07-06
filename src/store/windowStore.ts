@@ -79,7 +79,7 @@ function getDefaultPosition(index: number) {
 export const useWindowStore = create<WindowStore>((set, get) => ({
   windows: [],
   activeWindowId: null,
-  topZIndex: 10000,
+  topZIndex: 100,
   theme: "dark",
   dockPositions: {
     home: null,

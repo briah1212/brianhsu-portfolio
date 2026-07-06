@@ -9,7 +9,8 @@ export const MENU_BAR_HEIGHT = 28;
 export const DOCK_AREA = 90;
 
 export function getEffectiveDockArea(dockVisible: boolean): number {
-  return dockVisible ? DOCK_AREA : 0;
+  // Allow windows to go behind dock - return 0 regardless of visibility
+  return 0;
 }
 
 export function getMaximizedWindowBounds(

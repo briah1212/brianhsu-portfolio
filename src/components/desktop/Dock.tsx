@@ -398,7 +398,7 @@ export function Dock() {
         </div>
       )}
       <motion.div
-        className={`fixed bottom-3 left-0 right-0 z-[9997] flex justify-center overflow-visible ${
+        className={`fixed bottom-3 left-0 right-0 z-[9998] flex justify-center overflow-visible ${
           dockVisible ? "pointer-events-auto" : "pointer-events-none"
         }`}
         animate={{ y: dockVisible ? 0 : HIDE_OFFSET }}
