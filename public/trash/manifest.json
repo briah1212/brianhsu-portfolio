@@ -1,0 +1,84 @@
+{
+  "items": [
+    {
+      "name": "screenshot_do_not_open.png",
+      "type": "image",
+      "size": "2.4 MB",
+      "date": "March 15, 2024",
+      "path": "/trash/screenshot_do_not_open.png"
+    },
+    {
+      "name": "cursed_selfie_2019.png",
+      "type": "image",
+      "size": "1.8 MB",
+      "date": "December 31, 2019",
+      "path": "/trash/cursed_selfie_2019.png"
+    },
+    {
+      "name": "bug_that_haunts_me.png",
+      "type": "image",
+      "size": "892 KB",
+      "date": "October 13, 2023",
+      "path": "/trash/bug_that_haunts_me.png"
+    },
+    {
+      "name": "old_portfolio_v1.zip",
+      "type": "archive",
+      "size": "47.2 MB",
+      "date": "January 8, 2023",
+      "path": null
+    },
+    {
+      "name": "embarrassing_code.js",
+      "type": "code",
+      "size": "12 KB",
+      "date": "May 22, 2024",
+      "path": null
+    },
+    {
+      "name": "secret_memes",
+      "type": "folder",
+      "size": "2 items",
+      "date": "June 30, 2024",
+      "path": null,
+      "children": [
+        {
+          "name": "programming_humor_cringe.png",
+          "type": "image",
+          "size": "856 KB",
+          "date": "June 29, 2024",
+          "path": "/trash/secret_memes/programming_humor_cringe.png"
+        },
+        {
+          "name": "stackoverflow_copy_paste.png",
+          "type": "image",
+          "size": "1.1 MB",
+          "date": "June 30, 2024",
+          "path": "/trash/secret_memes/stackoverflow_copy_paste.png"
+        }
+      ]
+    },
+    {
+      "name": "old_code",
+      "type": "folder",
+      "size": "Empty",
+      "date": "February 14, 2023",
+      "path": null,
+      "children": []
+    },
+    {
+      "name": "TODO_from_3_years_ago.txt",
+      "type": "text",
+      "size": "4 KB",
+      "date": "March 3, 2022",
+      "path": null
+    },
+    {
+      "name": "definitely_not_my_passwords.txt",
+      "type": "text",
+      "size": "128 bytes",
+      "date": "April 1, 2024",
+      "path": null
+    }
+  ]
+}

@@ -6,6 +6,7 @@ import { AboutApp } from "./AboutApp";
 import { ProjectsApp } from "./ProjectsApp";
 import { ContactApp } from "./ContactApp";
 import { TerminalApp } from "./TerminalApp";
+import { TrashApp } from "./TrashApp";
 
 interface AppContainerProps {
   appId: AppId;
@@ -25,6 +26,8 @@ export function AppContainer({ appId, windowId, route }: AppContainerProps) {
       return <ContactApp />;
     case "terminal":
       return <TerminalApp />;
+    case "trash":
+      return <TrashApp />;
     default:
       return null;
   }
