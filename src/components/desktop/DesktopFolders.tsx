@@ -41,14 +41,12 @@ export function DesktopFolders() {
   const handleOpenIcon = useCallback(
     (iconId: DesktopIconId) => {
       // Map desktop icon IDs to app IDs
-      const iconToAppMap: Record<DesktopIconId, string> = {
-        trash: "trash",
-        calculator: "calculator",
-        fileImage: "photos",
-      };
-      const appId = iconToAppMap[iconId];
-      if (appId) {
-        openApp(appId as any);
+      if (iconId === "calculator") {
+        openApp("calculator");
+      } else if (iconId === "fileImage") {
+        openApp("photos");
+      } else if (iconId === "trash") {
+        openApp("trash");
       }
     },
     [openApp]
