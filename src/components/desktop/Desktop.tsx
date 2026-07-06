@@ -29,6 +29,8 @@ export function Desktop() {
 
   const handleLoadingExit = useCallback(() => {
     setShowLoading(false);
+    // Dispatch event that loading is complete for chatbot
+    window.dispatchEvent(new CustomEvent('desktopLoaded'));
   }, []);
 
   useEffect(() => {
