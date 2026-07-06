@@ -153,15 +153,16 @@ export function CalculatorApp() {
   ]);
 
   return (
-    <div className="app-content flex h-full w-full flex-col items-center justify-center bg-gradient-to-b from-neutral-900 to-neutral-950 p-4">
+    <div className="app-content flex h-full w-full flex-col items-center justify-center p-6">
       <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-[260px]"
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="w-full max-w-[280px]"
       >
         {/* Display */}
-        <div className="mb-3 rounded-xl bg-black/40 px-4 py-6 text-right">
-          <div className="overflow-hidden text-ellipsis whitespace-nowrap text-4xl font-light text-white">
+        <div className="mb-4 rounded-lg border border-foreground/10 bg-foreground/5 px-5 py-6 backdrop-blur-sm">
+          <div className="overflow-hidden text-ellipsis whitespace-nowrap text-right text-4xl font-light tracking-tight text-foreground">
             {display}
           </div>
         </div>
@@ -173,7 +174,7 @@ export function CalculatorApp() {
             C
           </CalcButton>
           <CalcButton onClick={handleNegate} variant="function">
-            +/-
+            +/−
           </CalcButton>
           <CalcButton onClick={handlePercentage} variant="function">
             %
@@ -233,17 +234,20 @@ function CalcButton({
   variant = "number",
   className = "",
 }: CalcButtonProps) {
-  const baseStyles = "rounded-full text-lg font-light transition-all";
+  const baseStyles = "rounded-lg text-base font-medium transition-all border";
   const variantStyles = {
-    number: "bg-neutral-700 text-white hover:bg-neutral-600 active:bg-neutral-500",
-    operator: "bg-orange-500 text-white hover:bg-orange-400 active:bg-orange-600",
-    function: "bg-neutral-500 text-black hover:bg-neutral-400 active:bg-neutral-300",
+    number: 
+      "bg-foreground/5 border-foreground/10 text-foreground hover:bg-foreground/10 hover:border-foreground/15 active:bg-foreground/15",
+    operator: 
+      "bg-sky-400/10 border-sky-400/30 text-sky-400 hover:bg-sky-400/20 hover:border-sky-400/40 active:bg-sky-400/30",
+    function: 
+      "bg-foreground/8 border-foreground/15 text-foreground/70 hover:bg-foreground/12 hover:text-foreground active:bg-foreground/15",
   };
 
   return (
     <motion.button
-      whileTap={{ scale: 0.95 }}
-      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.97 }}
+      whileHover={{ scale: 1.02 }}
       onClick={onClick}
       className={`${baseStyles} ${variantStyles[variant]} ${className} h-14 ${
         className.includes("col-span-2") ? "" : "w-14"
