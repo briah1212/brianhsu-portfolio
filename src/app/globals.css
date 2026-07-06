@@ -1017,6 +1017,16 @@ body {
   box-shadow: none;
 }
 
+.dock-separator {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 1px;
+  pointer-events: none;
+}
+
+[data-theme="light"] .dock-separator {
+  background: rgba(0, 0, 0, 0.12);
+}
+
 .dock-tooltip {
   box-shadow:
     0 2px 8px rgba(0, 0, 0, 0.22),
