@@ -35,6 +35,7 @@ function resetWindowStore() {
       calculator: null,
       photos: null,
       trash: null,
+      code: null,
     },
     genieOrigin: null,
     genieAppId: null,

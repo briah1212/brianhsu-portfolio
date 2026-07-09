@@ -90,6 +90,7 @@ export const useWindowStore = create<WindowStore>((set, get) => ({
     calculator: null,
     photos: null,
     trash: null,
+    code: null,
   },
   genieOrigin: null,
   genieAppId: null,
