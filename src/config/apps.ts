@@ -40,6 +40,15 @@ export const APPS: AppConfig[] = [
     defaultSize: { width: 600, height: 400 },
   },
   {
+    id: "code",
+    title: "Code",
+    // TODO: dedicated IDE icon; reusing the terminal file-code icon for now
+    icon: DESKTOP_ASSETS.fileCode,
+    color: "#0A84FF",
+    defaultSize: { width: 960, height: 620 },
+    defaultPosition: { x: 160, y: 72 },
+  },
+  {
     id: "calculator",
     title: "Calculator",
     icon: DESKTOP_ASSETS.calculator,
@@ -60,15 +69,6 @@ export const APPS: AppConfig[] = [
     icon: DESKTOP_ASSETS.trash,
     color: "#8E8E93",
     defaultSize: { width: 720, height: 560 },
-  },
-  {
-    id: "code",
-    title: "Code",
-    // TODO: dedicated IDE icon; reusing the terminal file-code icon for now
-    icon: DESKTOP_ASSETS.fileCode,
-    color: "#0A84FF",
-    defaultSize: { width: 960, height: 620 },
-    defaultPosition: { x: 160, y: 72 },
   },
 ];
 
