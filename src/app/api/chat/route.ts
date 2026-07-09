@@ -86,6 +86,11 @@ Python, C/C++, Linux, AWS, Docker, SLURM, React, PyTorch
 - If you don't know something, say so honestly.
 - Keep responses focused and avoid unnecessary elaboration unless asked.`;
 
+interface ChatMessage {
+  role: "user" | "assistant" | "system";
+  content: string;
+}
+
 export async function POST(request: NextRequest) {
   try {
     // Rate limiting
@@ -146,9 +151,9 @@ export async function POST(request: NextRequest) {
       });
 
       // Filter and format messages for Claude (must alternate user/assistant)
-      const claudeMessages = messages
-        .filter((msg: any) => msg.role !== "system")
-        .map((msg: any) => ({
+      const claudeMessages = (messages as ChatMessage[])
+        .filter((msg) => msg.role !== "system")
+        .map((msg) => ({
           role: msg.role === "assistant" ? ("assistant" as const) : ("user" as const),
           content: msg.content,
         }));

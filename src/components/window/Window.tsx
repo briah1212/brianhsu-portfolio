@@ -43,10 +43,9 @@ export function Window({ window: win }: WindowProps) {
     genieAppId,
     clearGenieOrigin,
     theme,
-    dockVisible,
   } = useWindowStore();
 
-  const effectiveDockArea = getEffectiveDockArea(dockVisible);
+  const effectiveDockArea = getEffectiveDockArea();
 
   const isActive = activeWindowId === win.id;
   const config = getAppConfig(win.appId);
@@ -99,7 +98,7 @@ export function Window({ window: win }: WindowProps) {
 
     const syncMaximizedBounds = () => {
       setIsViewportSync(true);
-      const area = getEffectiveDockArea(useWindowStore.getState().dockVisible);
+      const area = getEffectiveDockArea();
       updateWindow(win.id, getMaximizedWindowBounds(undefined, undefined, area));
     };
 
