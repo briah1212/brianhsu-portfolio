@@ -9,12 +9,8 @@ import {
 } from "./resizeUtils";
 
 describe("getEffectiveDockArea", () => {
-  it("returns dock inset when visible", () => {
-    expect(getEffectiveDockArea(true)).toBe(DOCK_AREA);
-  });
-
-  it("returns zero when hidden", () => {
-    expect(getEffectiveDockArea(false)).toBe(0);
+  it("returns zero so windows can extend behind the dock", () => {
+    expect(getEffectiveDockArea()).toBe(0);
   });
 });
 

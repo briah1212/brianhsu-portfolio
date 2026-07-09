@@ -8,8 +8,9 @@ export const MIN_WINDOW_HEIGHT = 240;
 export const MENU_BAR_HEIGHT = 28;
 export const DOCK_AREA = 90;
 
-export function getEffectiveDockArea(dockVisible: boolean): number {
-  // Allow windows to go behind dock - return 0 regardless of visibility
+export function getEffectiveDockArea(): number {
+  // Windows may extend behind the dock, so it reserves no layout area.
+  // Kept as a function so a future dock-avoidance mode has one seam.
   return 0;
 }
 

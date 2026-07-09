@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Send, Loader2, Trash2 } from "lucide-react";
 import { ChatMessage, Message } from "./ChatMessage";
@@ -56,7 +56,7 @@ export function ChatWindow({ isOpen, onClose }: ChatWindowProps) {
     }
   }, [isOpen]);
 
-  const sendMessage = async (content: string) => {
+  const sendMessage = useCallback(async (content: string) => {
     if (!content.trim() || isLoading) return;
 
     const userMessage: Message = {
@@ -103,7 +103,7 @@ export function ChatWindow({ isOpen, onClose }: ChatWindowProps) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [isLoading, messages]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
