@@ -4,12 +4,12 @@ Personal portfolio site at **[brianhsu.info](https://brianhsu.info)** — a proo
 
 ## Stack
 
-- **Next.js** (App Router, static export)
+- **Next.js** (App Router)
 - **TypeScript**
 - **Tailwind CSS**
 - **Framer Motion** + **anime.js** for animations
 - **Vitest** + **jsdom** for unit tests
-- Deployed to **GitHub Pages** via GitHub Actions
+- Deployed on **Vercel** (server routes enabled for the chat assistant)
 
 ## Getting Started
 
@@ -38,4 +38,6 @@ scripts/          # Build/utility scripts
 
 ## Deploy
 
-Pushes to `main` trigger the GitHub Actions workflow (`.github/workflows/`) which builds and deploys to GitHub Pages automatically.
+Production runs on Vercel: every push to `main` is built and deployed automatically, including the `/api/chat` route behind the portfolio assistant.
+The GitHub Actions `CI` workflow (`.github/workflows/ci.yml`) is the quality gate: it lints, typechecks, runs unit tests, and does a production build on every pull request and push to `main`.
+Vercel preview deployments cover visual review on pull requests.
