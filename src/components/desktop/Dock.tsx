@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { Fragment, memo, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   AnimatePresence,
   motion,
@@ -432,11 +432,10 @@ export function Dock() {
         onMouseMove={handleMouseMove}
       >
         {APPS.map((app, index) => (
-          <>
-            {/* Add separator before calculator (after terminal) */}
-            {index === 5 && (
+          <Fragment key={app.id}>
+            {/* Separator between primary apps and desk accessories */}
+            {app.id === "calculator" && (
               <div
-                key="dock-separator"
                 className="dock-separator"
                 style={{
                   width: '1px',
@@ -448,7 +447,6 @@ export function Dock() {
               />
             )}
             <DockIcon
-              key={app.id}
               app={app}
               index={index}
               mouseX={mouseX}
@@ -456,7 +454,7 @@ export function Dock() {
               theme={theme}
               onOpen={handleOpen}
             />
-          </>
+          </Fragment>
         ))}
       </motion.div>
       </motion.div>
