@@ -4,7 +4,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { getEffectiveDockArea } from "@/components/window/resizeUtils";
 import { clampFolderPosition } from "@/config/desktopLayout";
-import { useWindowStore } from "@/store/windowStore";
 
 const DRAG_THRESHOLD = 6;
 const DRAG_SCALE = 1.08;
@@ -70,9 +69,7 @@ export function DesktopItem({
           setIsDragging(true);
         }
 
-        const dockArea = getEffectiveDockArea(
-          useWindowStore.getState().dockVisible
-        );
+        const dockArea = getEffectiveDockArea();
         const next = clampFolderPosition(
           dragStart.current.x + dx,
           dragStart.current.y + dy,
@@ -91,9 +88,7 @@ export function DesktopItem({
         document.removeEventListener("pointercancel", endDrag);
 
         if (didDragRef.current) {
-          const dockArea = getEffectiveDockArea(
-            useWindowStore.getState().dockVisible
-          );
+          const dockArea = getEffectiveDockArea();
           const finalPos = clampFolderPosition(
             livePosRef.current.x,
             livePosRef.current.y,

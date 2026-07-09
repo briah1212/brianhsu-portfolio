@@ -390,7 +390,7 @@ export const useWindowStore = create<WindowStore>((set, get) => ({
     const { dockVisible } = get();
     if (dockVisible === visible) return;
 
-    const dockArea = getEffectiveDockArea(visible);
+    const dockArea = getEffectiveDockArea();
     const maximizedBounds = getMaximizedWindowBounds(
       undefined,
       undefined,

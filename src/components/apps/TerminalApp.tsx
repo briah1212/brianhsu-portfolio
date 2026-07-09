@@ -368,64 +368,6 @@ export function TerminalApp() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [history]);
 
-  // Tab completion logic
-  const handleTabComplete = useCallback(() => {
-    const trimmed = input.trim();
-    const parts = trimmed.split(/\s+/);
-    const cmd = parts[0]?.toLowerCase();
-    
-    // Command completion
-    if (parts.length <= 1) {
-      const commands = Object.keys(commandRegistry);
-      const matches = commands.filter(c => c.startsWith(trimmed.toLowerCase()));
-      if (matches.length === 1) {
-        setInput(matches[0] + " ");
-      } else if (matches.length > 1) {
-        addToHistory(trimmed, matches.join("  "));
-      }
-      return;
-    }
-
-    // Path completion for filesystem commands
-    if (["cd", "ls", "cat", "grep"].includes(cmd)) {
-      const partial = parts.slice(1).join(" ");
-      const targetPath = partial || cwd;
-      const parentPath = partial.includes("/") 
-        ? resolvePath(cwd, partial.substring(0, partial.lastIndexOf("/")))
-        : cwd;
-      
-      const items = listDir(filesystem, parentPath);
-      if (!items) return;
-      
-      const prefix = partial.includes("/") ? partial.substring(0, partial.lastIndexOf("/") + 1) : "";
-      const searchTerm = partial.includes("/") ? partial.substring(partial.lastIndexOf("/") + 1) : partial;
-      
-      const matches = items.filter(item => item.startsWith(searchTerm));
-      
-      if (matches.length === 1) {
-        setInput(`${cmd} ${prefix}${matches[0]}`);
-      } else if (matches.length > 1) {
-        addToHistory(trimmed, matches.join("  "));
-      }
-      return;
-    }
-
-    // Legacy completion for open command (project slugs)
-    if (cmd === "open") {
-      const partial = parts.slice(1).join(" ").toLowerCase();
-      const projects = getAllProjects();
-      const matches = projects
-        .map(p => p.slug)
-        .filter(slug => slug.startsWith(partial));
-      
-      if (matches.length === 1) {
-        setInput(`${cmd} ${matches[0]}`);
-      } else if (matches.length > 1) {
-        addToHistory(trimmed, matches.join("  "));
-      }
-    }
-  }, [input, cwd, filesystem]);
-
   // Command handlers
   const commandRegistry: Record<string, CommandHandler> = {
     help: () => {
@@ -718,6 +660,64 @@ Type 'help' for available commands.`;
   const addToHistory = useCallback((input: string, output: string) => {
     setHistory((h) => [...h, { input, output }]);
   }, []);
+
+  // Tab completion logic
+  const handleTabComplete = useCallback(() => {
+    const trimmed = input.trim();
+    const parts = trimmed.split(/\s+/);
+    const cmd = parts[0]?.toLowerCase();
+    
+    // Command completion
+    if (parts.length <= 1) {
+      const commands = Object.keys(commandRegistry);
+      const matches = commands.filter(c => c.startsWith(trimmed.toLowerCase()));
+      if (matches.length === 1) {
+        setInput(matches[0] + " ");
+      } else if (matches.length > 1) {
+        addToHistory(trimmed, matches.join("  "));
+      }
+      return;
+    }
+
+    // Path completion for filesystem commands
+    if (["cd", "ls", "cat", "grep"].includes(cmd)) {
+      const partial = parts.slice(1).join(" ");
+      const targetPath = partial || cwd;
+      const parentPath = partial.includes("/") 
+        ? resolvePath(cwd, partial.substring(0, partial.lastIndexOf("/")))
+        : cwd;
+      
+      const items = listDir(filesystem, parentPath);
+      if (!items) return;
+      
+      const prefix = partial.includes("/") ? partial.substring(0, partial.lastIndexOf("/") + 1) : "";
+      const searchTerm = partial.includes("/") ? partial.substring(partial.lastIndexOf("/") + 1) : partial;
+      
+      const matches = items.filter(item => item.startsWith(searchTerm));
+      
+      if (matches.length === 1) {
+        setInput(`${cmd} ${prefix}${matches[0]}`);
+      } else if (matches.length > 1) {
+        addToHistory(trimmed, matches.join("  "));
+      }
+      return;
+    }
+
+    // Legacy completion for open command (project slugs)
+    if (cmd === "open") {
+      const partial = parts.slice(1).join(" ").toLowerCase();
+      const projects = getAllProjects();
+      const matches = projects
+        .map(p => p.slug)
+        .filter(slug => slug.startsWith(partial));
+      
+      if (matches.length === 1) {
+        setInput(`${cmd} ${matches[0]}`);
+      } else if (matches.length > 1) {
+        addToHistory(trimmed, matches.join("  "));
+      }
+    }
+  }, [input, cwd, filesystem, addToHistory, commandRegistry]);
 
   const runCommand = useCallback(
     (raw: string) => {
