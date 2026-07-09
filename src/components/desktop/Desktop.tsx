@@ -7,6 +7,7 @@ import { MenuBar } from "./MenuBar";
 import { Dock } from "./Dock";
 import { WindowManager } from "@/components/window/Window";
 import { LoadingScreen } from "@/components/loading/LoadingScreen";
+import { ClickSpark } from "@/components/effects/ClickSpark";
 import { useWindowStore } from "@/store/windowStore";
 
 export function Desktop() {
@@ -84,11 +85,19 @@ export function Desktop() {
     <>
       {desktopReady && (
         <div className="desktop relative h-screen w-screen overflow-hidden">
-          <Wallpaper />
-          <DesktopFolders />
-          <MenuBar />
-          <WindowManager />
-          <Dock />
+          <ClickSpark
+            sparkColor={theme === "dark" ? "#7dd3fc" : "#0284c7"}
+            sparkSize={10}
+            sparkRadius={18}
+            sparkCount={8}
+            duration={420}
+          >
+            <Wallpaper />
+            <DesktopFolders />
+            <MenuBar />
+            <WindowManager />
+            <Dock />
+          </ClickSpark>
         </div>
       )}
       {showLoading && (
