@@ -22,7 +22,7 @@ export function AppContainer({ appId, windowId, route }: AppContainerProps) {
     case "home":
       return <HomeApp />;
     case "about":
-      return <AboutApp />;
+      return <AboutApp windowId={windowId} />;
     case "projects":
       return <ProjectsApp windowId={windowId} route={route} />;
     case "contact":

@@ -1,7 +1,21 @@
 "use client";
 
+import { useEffect, useRef } from "react";
+import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 import { FileDown } from "lucide-react";
+import { useWindowStore } from "@/store/windowStore";
+import type { LanyardMotion } from "@/components/effects/Lanyard";
+
+// 3D card pulls in WebGL + a WASM physics engine — client-only, and lazy so it
+// never blocks the rest of the About window from rendering.
+const Lanyard = dynamic(() => import("@/components/effects/Lanyard"), {
+  ssr: false,
+});
+
+interface AboutAppProps {
+  windowId?: string;
+}
 
 const experiences = [
   {
@@ -47,10 +61,55 @@ const skills = [
   "PyTorch",
 ];
 
-export function AboutApp() {
+export function AboutApp({ windowId }: AboutAppProps) {
+  // Accumulates the host window's screen-space velocity; the Lanyard's physics
+  // loop reads and decays it so dragging the window makes the card swing.
+  const motionRef = useRef<LanyardMotion>({ x: 0, y: 0 });
+
+  useEffect(() => {
+    if (!windowId) return;
+    let prevX: number | null = null;
+    let prevY: number | null = null;
+
+    const readPosition = (win: { x: number; y: number } | undefined) => {
+      if (!win) return;
+      if (prevX !== null && prevY !== null) {
+        motionRef.current.x += win.x - prevX;
+        motionRef.current.y += win.y - prevY;
+      }
+      prevX = win.x;
+      prevY = win.y;
+    };
+
+    readPosition(
+      useWindowStore.getState().windows.find((w) => w.id === windowId)
+    );
+    const unsubscribe = useWindowStore.subscribe((state) => {
+      readPosition(state.windows.find((w) => w.id === windowId));
+    });
+    return unsubscribe;
+  }, [windowId]);
+
   return (
-    <div className="app-content h-full overflow-y-auto p-6">
+    <div className="app-content h-full overflow-y-auto">
+      <section className="lanyard-hero">
+        <div className="lanyard-canvas">
+          <Lanyard
+            position={[0, 0, 18]}
+            gravity={[0, -40, 0]}
+            frontImage="/lanyard/brian-card.png"
+            imageFit="cover"
+            motionRef={motionRef}
+          />
+        </div>
+        <div className="lanyard-hero-hint" aria-hidden>
+          <span className="lanyard-hero-hint-text">About</span>
+          <span className="lanyard-hero-hint-chevron">⌄</span>
+        </div>
+      </section>
+
       <motion.div
+        className="p-6"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3 }}
