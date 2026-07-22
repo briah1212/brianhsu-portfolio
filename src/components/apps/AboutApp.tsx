@@ -1,7 +1,9 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { FileDown } from "lucide-react";
+
+const SECTION_EASE = [0.22, 1, 0.36, 1] as const;
 
 const experiences = [
   {
@@ -36,6 +38,12 @@ const focusAreas = [
   { label: "Cognitive Science", emoji: "👁️" },
 ];
 
+const education = {
+  degree: "B.S. Computer Science & B.S. Cognitive Science",
+  detail: "Computation track · GPA 3.9/4.0",
+  school: "University of Michigan, Ann Arbor",
+};
+
 const skills = [
   "Python",
   "C/C++",
@@ -48,6 +56,8 @@ const skills = [
 ];
 
 export function AboutApp() {
+  const reduceMotion = useReducedMotion();
+
   return (
     <div className="app-content h-full overflow-y-auto p-6">
       <motion.div
@@ -82,44 +92,59 @@ export function AboutApp() {
         <h3 className="mt-6 text-sm font-semibold text-foreground/80">
           Experience
         </h3>
-        <div className="mt-3 divide-y divide-foreground/8">
-          {experiences.map((exp) => (
-            <div key={`${exp.org}-${exp.period}`} className="py-3 first:pt-0 last:pb-0">
-              <div className="flex items-start justify-between gap-2">
-                <div>
-                  <p className="text-sm font-medium">{exp.role}</p>
-                  <p className="text-xs text-foreground/50">{exp.org}</p>
+        <div className="home-timeline mt-3">
+          {experiences.map((exp, index) => (
+            <motion.article
+              key={`${exp.org}-${exp.period}`}
+              className="home-timeline-item"
+              initial={reduceMotion ? false : { opacity: 0, x: -16 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-4%" }}
+              transition={{
+                delay: index * 0.08,
+                duration: 0.55,
+                ease: SECTION_EASE,
+              }}
+            >
+              <div className="home-timeline-marker" aria-hidden />
+              <div className="home-timeline-content">
+                <div className="home-timeline-head">
+                  <h4 className="home-timeline-role">{exp.role}</h4>
+                  <time className="home-timeline-period">{exp.period}</time>
                 </div>
-                <span className="shrink-0 text-xs text-foreground/40">
-                  {exp.period}
-                </span>
+                <p className="home-timeline-org">{exp.org}</p>
+                <p className="home-timeline-detail">{exp.detail}</p>
               </div>
-              <p className="mt-1.5 text-xs leading-relaxed text-foreground/55">
-                {exp.detail}
-              </p>
-            </div>
+            </motion.article>
           ))}
         </div>
 
         <h3 className="mt-6 text-sm font-semibold text-foreground/80">
           Education
         </h3>
-        <p className="mt-2 text-sm text-foreground/60">
-          B.S. Computer Science &amp; B.S. Cognitive Science
-          <br />
-          <span className="text-foreground/50">Computation track · GPA 3.9/4.0</span>
-          <br />
-          <span className="text-foreground/40">
-            University of Michigan, Ann Arbor
-          </span>
-        </p>
+        <div className="home-edu-card">
+          <h4 className="home-edu-degree">{education.degree}</h4>
+          <p className="home-edu-detail">{education.detail}</p>
+          <p className="home-edu-school">{education.school}</p>
+        </div>
 
         <h3 className="mt-6 text-sm font-semibold text-foreground/80">
           Skills
         </h3>
-        <p className="mt-2 text-xs leading-relaxed text-foreground/55">
-          {skills.join(" · ")}
-        </p>
+        <div className="home-skill-cloud">
+          {skills.map((skill, index) => (
+            <motion.span
+              key={skill}
+              className="home-skill-pill"
+              initial={reduceMotion ? false : { opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: index * 0.04, duration: 0.35 }}
+            >
+              {skill}
+            </motion.span>
+          ))}
+        </div>
 
         <a
           href="/Resume.pdf"
