@@ -8,7 +8,6 @@ import {
   useSpring,
   useTransform,
 } from "framer-motion";
-import { getAppConfig } from "@/config/apps";
 import { DESKTOP_ASSETS } from "@/config/assets";
 import {
   EXPERIENCES,
@@ -19,19 +18,8 @@ import {
 import { getFeaturedProjects } from "@/data/projects";
 import { useWindowStore } from "@/store/windowStore";
 import { HomeActionButton } from "./HomeActionButton";
-import type { AppId } from "@/types";
 
 const SECTION_EASE = [0.22, 1, 0.36, 1] as const;
-
-const HOME_ACTIONS: {
-  appId: AppId;
-  label: string;
-  subtitle: string;
-}[] = [
-  { appId: "projects", label: "Projects", subtitle: "See my work" },
-  { appId: "about", label: "About", subtitle: "My story" },
-  { appId: "contact", label: "Contact", subtitle: "Say hello" },
-];
 
 function HomeSection({
   title,
@@ -134,26 +122,6 @@ export function HomeApp() {
           <strong>systems engineering</strong> and{" "}
           <strong>human behavior</strong>.
         </motion.p>
-
-        <motion.div
-          className="home-action-grid"
-          initial={reduceMotion ? false : { opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.32, duration: 0.55 }}
-        >
-          {HOME_ACTIONS.map((action) => {
-            const config = getAppConfig(action.appId);
-            return (
-              <HomeActionButton
-                key={action.appId}
-                label={action.label}
-                subtitle={action.subtitle}
-                color={config?.color ?? "#5AC8FA"}
-                onClick={() => openApp(action.appId)}
-              />
-            );
-          })}
-        </motion.div>
 
         <motion.div
           className="home-scroll-hint"

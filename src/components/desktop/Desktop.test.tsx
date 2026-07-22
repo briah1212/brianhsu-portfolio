@@ -82,7 +82,7 @@ describe("Desktop website", () => {
   it("opens the contact path from the home window and exposes real links", async () => {
     await renderReadyDesktop();
 
-    fireEvent.click(screen.getByText("Say hello").closest("button")!);
+    fireEvent.click(screen.getByText("Get in touch").closest("button")!);
 
     expect(await screen.findByText("Get in Touch")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /email/i })).toHaveAttribute(
