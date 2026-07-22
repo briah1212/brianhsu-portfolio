@@ -11,13 +11,16 @@ export const DESKTOP_FOLDER_LAYOUT = {
 } as const;
 
 /**
- * All desktop items (category folders, then Photos/Trash/Calculator) stack in a
- * single vertical column pinned to the left edge of the screen.
+ * Category folders, then Trash/Calculator, stack in a single vertical column
+ * pinned to the left edge. Photos breaks out of the column and sits beside
+ * the first item (Academics) as a second-column accent, matching the
+ * reference layout.
  */
 const LEFT_COLUMN = {
   x: 40,
   top: MENU_BAR_HEIGHT + 24,
   rowGap: 86,
+  secondColumnOffset: 96,
 } as const;
 
 function columnY(index: number): number {
@@ -41,12 +44,16 @@ export function getDefaultDesktopIconPositions(): Record<
   DesktopIconId,
   { x: number; y: number }
 > {
-  // Continue the column directly below the category folders.
-  const offset = PROJECT_CATEGORY_IDS.length;
+  // Trash and Calculator continue the column directly below the category
+  // folders; Photos sits beside the first folder (Academics) instead.
+  const lastCategoryIndex = PROJECT_CATEGORY_IDS.length - 1;
   return {
-    fileImage: { x: LEFT_COLUMN.x, y: columnY(offset) },
-    trash: { x: LEFT_COLUMN.x, y: columnY(offset + 1) },
-    calculator: { x: LEFT_COLUMN.x, y: columnY(offset + 2) },
+    fileImage: {
+      x: LEFT_COLUMN.x + LEFT_COLUMN.secondColumnOffset,
+      y: columnY(0),
+    },
+    trash: { x: LEFT_COLUMN.x, y: columnY(lastCategoryIndex + 1) },
+    calculator: { x: LEFT_COLUMN.x, y: columnY(lastCategoryIndex + 2) },
   };
 }
 
