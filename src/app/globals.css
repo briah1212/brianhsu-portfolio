@@ -189,7 +189,9 @@ body {
   align-items: center;
   text-align: center;
   padding: 2.5rem 1.75rem 2rem;
-  min-height: min(92vh, 640px);
+  /* Fill the visible window so the hero content centers on first load,
+     rather than sizing to the viewport (which overflows the small window). */
+  min-height: 100%;
   justify-content: center;
 }
 
