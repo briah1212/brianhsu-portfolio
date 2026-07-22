@@ -4,6 +4,7 @@ import { getProjectsWindowTitle } from "@/config/categories";
 import {
   getMaximizedWindowBounds,
   getEffectiveDockArea,
+  MENU_BAR_HEIGHT,
 } from "@/components/window/resizeUtils";
 import type { AppId, DesktopIconId, DockIconPosition, ProjectCategory, WindowState } from "@/types";
 import {
@@ -152,6 +153,15 @@ export const useWindowStore = create<WindowStore>((set, get) => ({
     const nextZ = get().topZIndex + 1;
     const id = `${appId}-${Date.now()}`;
 
+    // Fit the default bounds to the current viewport so the (generous) sizes
+    // never spawn a window partly off-screen on smaller displays.
+    const vw = globalThis.innerWidth || 1440;
+    const vh = globalThis.innerHeight || 900;
+    const width = Math.min(config.defaultSize.width, vw - 32);
+    const height = Math.min(config.defaultSize.height, vh - MENU_BAR_HEIGHT - 24);
+    const x = Math.max(0, Math.min(pos.x, vw - width));
+    const y = Math.max(MENU_BAR_HEIGHT, Math.min(pos.y, vh - height));
+
     const newWindow: WindowState = {
       id,
       appId,
@@ -159,10 +169,10 @@ export const useWindowStore = create<WindowStore>((set, get) => ({
         appId === "projects"
           ? getProjectsWindowTitle(route)
           : config.title,
-      x: pos.x,
-      y: pos.y,
-      width: config.defaultSize.width,
-      height: config.defaultSize.height,
+      x,
+      y,
+      width,
+      height,
       zIndex: nextZ,
       isMinimized: false,
       isMaximized: false,
