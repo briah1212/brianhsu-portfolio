@@ -309,6 +309,17 @@ export function Window({ window: win }: WindowProps) {
     [toggleMaximizeWindow, win.id, config?.resizable]
   );
 
+  // Double-clicking the title bar zooms/unzooms, matching the green button.
+  const handleTitleBarDoubleClick = useCallback(
+    (e: React.MouseEvent) => {
+      // Ignore double-clicks on the traffic-light controls
+      if ((e.target as Element).closest(".title-bar-controls")) return;
+      if (config?.resizable === false) return;
+      toggleMaximizeWindow(win.id);
+    },
+    [toggleMaximizeWindow, win.id, config?.resizable]
+  );
+
   const getWindowRect = useCallback(() => winRectRef.current, []);
 
   const handleResize = useCallback(
@@ -372,6 +383,7 @@ export function Window({ window: win }: WindowProps) {
       <div
         className="title-bar relative flex h-9 shrink-0 cursor-default select-none items-center gap-2 px-3"
         onPointerDown={handleDragStart}
+        onDoubleClick={handleTitleBarDoubleClick}
       >
         <div
           className="title-bar-controls pointer-events-auto absolute left-3 top-1/2 z-30 flex -translate-y-1/2 items-center gap-1.5"
