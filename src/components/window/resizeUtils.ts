@@ -14,6 +14,27 @@ export function getEffectiveDockArea(): number {
   return 0;
 }
 
+/**
+ * Below `reference` size, returns `position` unchanged — this is the
+ * hand-tuned "minimum screen" the layout was captured at. Above it, shifts
+ * the position by half the extra space in each axis, which keeps the
+ * window's offset from the *screen center* constant as the viewport grows
+ * (rather than its offset from the corner), so the whole arrangement drifts
+ * toward center on larger screens without ever changing size.
+ */
+export function getCenterOnGrowPosition(
+  position: { x: number; y: number },
+  viewport: { width: number; height: number },
+  reference: { width: number; height: number }
+): { x: number; y: number } {
+  const extraWidth = Math.max(0, viewport.width - reference.width);
+  const extraHeight = Math.max(0, viewport.height - reference.height);
+  return {
+    x: position.x + extraWidth / 2,
+    y: position.y + extraHeight / 2,
+  };
+}
+
 export function getMaximizedWindowBounds(
   viewportWidth = globalThis.innerWidth,
   viewportHeight = globalThis.innerHeight,

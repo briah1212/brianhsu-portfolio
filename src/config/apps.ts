@@ -1,6 +1,14 @@
 import type { AppConfig } from "@/types";
 import { DESKTOP_ASSETS } from "./assets";
 
+/**
+ * Viewport the Home/About defaultPosition values were hand-tuned at — the
+ * "minimum screen" baseline. Below this size the layout renders exactly as
+ * captured; above it, centerOnGrow drifts those windows toward the screen
+ * center as the viewport grows (see getCenterOnGrowPosition).
+ */
+export const LAYOUT_REFERENCE_VIEWPORT = { width: 1470, height: 746 } as const;
+
 export const APPS: AppConfig[] = [
   {
     id: "home",
@@ -9,6 +17,7 @@ export const APPS: AppConfig[] = [
     color: "#5AC8FA",
     defaultSize: { width: 701, height: 517 },
     defaultPosition: { x: 207, y: 157 },
+    centerOnGrow: true,
   },
   {
     id: "about",
@@ -17,6 +26,7 @@ export const APPS: AppConfig[] = [
     color: "#AF52DE",
     defaultSize: { width: 733, height: 525 },
     defaultPosition: { x: 638, y: 61 },
+    centerOnGrow: true,
   },
   {
     id: "projects",
