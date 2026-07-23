@@ -17,6 +17,12 @@ export interface AppConfig {
   defaultSize: { width: number; height: number };
   defaultPosition?: { x: number; y: number };
   resizable?: boolean; // Allow window resizing (default: true)
+  /**
+   * Above LAYOUT_REFERENCE_VIEWPORT, drift defaultPosition toward the screen
+   * center as the viewport grows, instead of holding a fixed distance from
+   * the corner. Size never changes. See getCenterOnGrowPosition.
+   */
+  centerOnGrow?: boolean;
 }
 
 export interface WindowState {

@@ -1,9 +1,10 @@
 import { create } from "zustand";
-import { APPS, getAppConfig } from "@/config/apps";
+import { APPS, getAppConfig, LAYOUT_REFERENCE_VIEWPORT } from "@/config/apps";
 import { getProjectsWindowTitle } from "@/config/categories";
 import {
   getMaximizedWindowBounds,
   getEffectiveDockArea,
+  getCenterOnGrowPosition,
   MENU_BAR_HEIGHT,
 } from "@/components/window/resizeUtils";
 import type { AppId, DesktopIconId, DockIconPosition, ProjectCategory, WindowState } from "@/types";
@@ -149,14 +150,25 @@ export const useWindowStore = create<WindowStore>((set, get) => ({
     }
 
     const index = get().windows.length;
-    const pos = config.defaultPosition ?? getDefaultPosition(index);
     const nextZ = get().topZIndex + 1;
     const id = `${appId}-${Date.now()}`;
 
-    // Fit the default bounds to the current viewport so the (generous) sizes
-    // never spawn a window partly off-screen on smaller displays.
     const vw = globalThis.innerWidth || 1440;
     const vh = globalThis.innerHeight || 900;
+
+    // Above the reference viewport, drift centerOnGrow windows toward the
+    // screen center as it grows, instead of holding a fixed corner distance.
+    const basePos = config.defaultPosition ?? getDefaultPosition(index);
+    const pos = config.centerOnGrow
+      ? getCenterOnGrowPosition(
+          basePos,
+          { width: vw, height: vh },
+          LAYOUT_REFERENCE_VIEWPORT
+        )
+      : basePos;
+
+    // Fit the default bounds to the current viewport so the (generous) sizes
+    // never spawn a window partly off-screen on smaller displays.
     const width = Math.min(config.defaultSize.width, vw - 32);
     const height = Math.min(config.defaultSize.height, vh - MENU_BAR_HEIGHT - 24);
     const x = Math.max(0, Math.min(pos.x, vw - width));
