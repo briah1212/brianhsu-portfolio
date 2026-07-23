@@ -1,4 +1,3 @@
-import { PROJECT_CATEGORY_IDS } from "@/config/categories";
 import { MENU_BAR_HEIGHT } from "@/components/window/resizeUtils";
 import type { DesktopIconId, ProjectCategory } from "@/types";
 
@@ -13,48 +12,36 @@ export const DESKTOP_FOLDER_LAYOUT = {
 /**
  * Category folders, then Trash/Calculator, stack in a single vertical column
  * pinned to the left edge. Photos breaks out of the column and sits beside
- * the first item (Academics) as a second-column accent, matching the
- * reference layout.
+ * the first item (Academics) as a second-column accent. These are exact
+ * coordinates captured from the hand-tuned reference layout, not a formula,
+ * so the default arrangement matches it pixel-for-pixel.
  */
-const LEFT_COLUMN = {
-  x: 40,
-  top: MENU_BAR_HEIGHT + 24,
-  rowGap: 86,
-  secondColumnOffset: 96,
-} as const;
+const FOLDER_POSITIONS: Record<ProjectCategory, { x: number; y: number }> = {
+  academics: { x: 28, y: 55 },
+  work: { x: 28, y: 150 },
+  research: { x: 26, y: 242 },
+  systems: { x: 26, y: 339 },
+  personal: { x: 23, y: 439 },
+};
 
-function columnY(index: number): number {
-  return LEFT_COLUMN.top + index * LEFT_COLUMN.rowGap;
-}
+const DESKTOP_ICON_POSITIONS: Record<DesktopIconId, { x: number; y: number }> = {
+  fileImage: { x: 123, y: 58 },
+  trash: { x: 22, y: 542 },
+  calculator: { x: 23, y: 643 },
+};
 
 export function getDefaultFolderPositions(): Record<
   ProjectCategory,
   { x: number; y: number }
 > {
-  return PROJECT_CATEGORY_IDS.reduce(
-    (acc, id, index) => {
-      acc[id] = { x: LEFT_COLUMN.x, y: columnY(index) };
-      return acc;
-    },
-    {} as Record<ProjectCategory, { x: number; y: number }>
-  );
+  return { ...FOLDER_POSITIONS };
 }
 
 export function getDefaultDesktopIconPositions(): Record<
   DesktopIconId,
   { x: number; y: number }
 > {
-  // Trash and Calculator continue the column directly below the category
-  // folders; Photos sits beside the first folder (Academics) instead.
-  const lastCategoryIndex = PROJECT_CATEGORY_IDS.length - 1;
-  return {
-    fileImage: {
-      x: LEFT_COLUMN.x + LEFT_COLUMN.secondColumnOffset,
-      y: columnY(0),
-    },
-    trash: { x: LEFT_COLUMN.x, y: columnY(lastCategoryIndex + 1) },
-    calculator: { x: LEFT_COLUMN.x, y: columnY(lastCategoryIndex + 2) },
-  };
+  return { ...DESKTOP_ICON_POSITIONS };
 }
 
 export function clampFolderPosition(
