@@ -3,6 +3,7 @@ import {
   DOCK_AREA,
   MENU_BAR_HEIGHT,
   computeResizedWindow,
+  getCenterOnGrowPosition,
   getEffectiveDockArea,
   getMaximizedWindowBounds,
   getWindowBoundsTarget,
@@ -11,6 +12,58 @@ import {
 describe("getEffectiveDockArea", () => {
   it("returns zero so windows can extend behind the dock", () => {
     expect(getEffectiveDockArea()).toBe(0);
+  });
+});
+
+describe("getCenterOnGrowPosition", () => {
+  const reference = { width: 1470, height: 746 };
+
+  it("returns the position unchanged at exactly the reference viewport", () => {
+    expect(
+      getCenterOnGrowPosition({ x: 207, y: 157 }, reference, reference)
+    ).toEqual({ x: 207, y: 157 });
+  });
+
+  it("returns the position unchanged on smaller viewports (the minimum-screen floor)", () => {
+    expect(
+      getCenterOnGrowPosition(
+        { x: 207, y: 157 },
+        { width: 1024, height: 700 },
+        reference
+      )
+    ).toEqual({ x: 207, y: 157 });
+  });
+
+  it("shifts by half the extra space on a larger viewport", () => {
+    expect(
+      getCenterOnGrowPosition(
+        { x: 207, y: 157 },
+        { width: 1920, height: 946 },
+        reference
+      )
+    ).toEqual({
+      x: 207 + (1920 - 1470) / 2,
+      y: 157 + (946 - 746) / 2,
+    });
+  });
+
+  it("preserves the offset from screen center regardless of how large the viewport grows", () => {
+    const original = { x: 638, y: 61 };
+    const originalCenterOffsetX = original.x - reference.width / 2;
+    const originalCenterOffsetY = original.y - reference.height / 2;
+
+    for (const viewport of [
+      { width: 1920, height: 1080 },
+      { width: 3440, height: 1440 },
+    ]) {
+      const shifted = getCenterOnGrowPosition(original, viewport, reference);
+      expect(shifted.x - viewport.width / 2).toBeCloseTo(
+        originalCenterOffsetX
+      );
+      expect(shifted.y - viewport.height / 2).toBeCloseTo(
+        originalCenterOffsetY
+      );
+    }
   });
 });
 

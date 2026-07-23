@@ -47,8 +47,10 @@ export function Desktop() {
   useEffect(() => {
     if (!desktopReady) return;
     const timer = setTimeout(() => {
-      openApp("home");
+      // Open About first so Home (opened last) gets the higher z-index and
+      // lands on top, matching the intended default stacking.
       openApp("about");
+      openApp("home");
     }, 300);
     return () => clearTimeout(timer);
   }, [desktopReady, openApp]);

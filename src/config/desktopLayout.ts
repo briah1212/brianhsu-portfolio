@@ -1,21 +1,7 @@
-import { getAppConfig } from "@/config/apps";
-import { PROJECT_CATEGORY_IDS } from "@/config/categories";
 import { MENU_BAR_HEIGHT } from "@/components/window/resizeUtils";
 import type { DesktopIconId, ProjectCategory } from "@/types";
 
-const home = getAppConfig("home");
-
-/** Default Home window geometry — folders align under this on load */
-export const HOME_WINDOW = {
-  x: home?.defaultPosition?.x ?? 120,
-  y: home?.defaultPosition?.y ?? 93,
-  width: home?.defaultSize.width ?? 520,
-  height: home?.defaultSize.height ?? 420,
-} as const;
-
 export const DESKTOP_FOLDER_LAYOUT = {
-  /** Gap below Home title bar + content */
-  gapBelowHome: 33,
   itemWidth: 72,
   itemHeight: 76,
   iconWidth: 56,
@@ -23,29 +9,39 @@ export const DESKTOP_FOLDER_LAYOUT = {
   gap: 10,
 } as const;
 
-export function getDesktopFolderRowTop() {
-  return HOME_WINDOW.y + HOME_WINDOW.height + DESKTOP_FOLDER_LAYOUT.gapBelowHome;
-}
+/**
+ * Category folders, then Trash/Calculator, stack in a single vertical column
+ * pinned to the left edge. Photos breaks out of the column and sits beside
+ * the first item (Academics) as a second-column accent. These are exact
+ * coordinates captured from the hand-tuned reference layout, not a formula,
+ * so the default arrangement matches it pixel-for-pixel.
+ */
+const FOLDER_POSITIONS: Record<ProjectCategory, { x: number; y: number }> = {
+  academics: { x: 28, y: 55 },
+  work: { x: 28, y: 150 },
+  research: { x: 26, y: 242 },
+  systems: { x: 26, y: 339 },
+  personal: { x: 23, y: 439 },
+};
+
+const DESKTOP_ICON_POSITIONS: Record<DesktopIconId, { x: number; y: number }> = {
+  fileImage: { x: 123, y: 58 },
+  trash: { x: 22, y: 542 },
+  calculator: { x: 23, y: 643 },
+};
 
 export function getDefaultFolderPositions(): Record<
   ProjectCategory,
   { x: number; y: number }
 > {
-  const y = getDesktopFolderRowTop();
-  const { itemWidth } = DESKTOP_FOLDER_LAYOUT;
-  const count = PROJECT_CATEGORY_IDS.length;
-  const slotWidth = HOME_WINDOW.width / count;
+  return { ...FOLDER_POSITIONS };
+}
 
-  return PROJECT_CATEGORY_IDS.reduce(
-    (acc, id, index) => {
-      acc[id] = {
-        x: HOME_WINDOW.x + slotWidth * index + (slotWidth - itemWidth) / 2,
-        y,
-      };
-      return acc;
-    },
-    {} as Record<ProjectCategory, { x: number; y: number }>
-  );
+export function getDefaultDesktopIconPositions(): Record<
+  DesktopIconId,
+  { x: number; y: number }
+> {
+  return { ...DESKTOP_ICON_POSITIONS };
 }
 
 export function clampFolderPosition(
@@ -62,20 +58,5 @@ export function clampFolderPosition(
       MENU_BAR_HEIGHT,
       Math.min(viewportHeight - itemHeight - dockArea, y)
     ),
-  };
-}
-
-export function getDefaultDesktopIconPositions(): Record<
-  DesktopIconId,
-  { x: number; y: number }
-> {
-  const columnX = HOME_WINDOW.x + HOME_WINDOW.width + 48;
-  const startY = HOME_WINDOW.y + 72;
-  const rowGap = 88;
-
-  return {
-    trash: { x: columnX, y: startY },
-    calculator: { x: columnX, y: startY + rowGap },
-    fileImage: { x: columnX, y: startY + rowGap * 2 },
   };
 }
