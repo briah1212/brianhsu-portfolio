@@ -38,6 +38,21 @@ export function Desktop() {
     hydrateTheme();
     hydrateFolderPositions();
     hydrateDesktopIconPositions();
+
+    // Re-fit desktop icons when the viewport changes so none end up off-screen.
+    let frame = 0;
+    const onResize = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        hydrateFolderPositions();
+        hydrateDesktopIconPositions();
+      });
+    };
+    window.addEventListener("resize", onResize);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("resize", onResize);
+    };
   }, [hydrateTheme, hydrateFolderPositions, hydrateDesktopIconPositions]);
 
   useEffect(() => {

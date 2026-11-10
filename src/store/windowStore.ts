@@ -6,11 +6,13 @@ import {
   getEffectiveDockArea,
   getCenterOnGrowPosition,
   MENU_BAR_HEIGHT,
+  DOCK_AREA,
 } from "@/components/window/resizeUtils";
 import type { AppId, DesktopIconId, DockIconPosition, ProjectCategory, WindowState } from "@/types";
 import {
   getDefaultFolderPositions,
   getDefaultDesktopIconPositions,
+  clampStoredPositions,
 } from "@/config/desktopLayout";
 
 const THEME_STORAGE_KEY = "portfolio-theme";
@@ -169,10 +171,15 @@ export const useWindowStore = create<WindowStore>((set, get) => ({
 
     // Fit the default bounds to the current viewport so the (generous) sizes
     // never spawn a window partly off-screen on smaller displays.
+    // Keep the default spawn above the dock; windows can still be dragged
+    // behind it afterwards.
     const width = Math.min(config.defaultSize.width, vw - 32);
-    const height = Math.min(config.defaultSize.height, vh - MENU_BAR_HEIGHT - 24);
+    const height = Math.min(
+      config.defaultSize.height,
+      vh - MENU_BAR_HEIGHT - DOCK_AREA - 12
+    );
     const x = Math.max(0, Math.min(pos.x, vw - width));
-    const y = Math.max(MENU_BAR_HEIGHT, Math.min(pos.y, vh - height));
+    const y = Math.max(MENU_BAR_HEIGHT, Math.min(pos.y, vh - DOCK_AREA - height));
 
     const newWindow: WindowState = {
       id,
@@ -362,19 +369,19 @@ export const useWindowStore = create<WindowStore>((set, get) => ({
 
   hydrateFolderPositions: () => {
     if (typeof window === "undefined") return;
-    const defaults = getDefaultFolderPositions();
+    // Runs on mount and on viewport resize: fit the defaults to the current
+    // screen and keep any saved positions on it.
+    const vw = globalThis.innerWidth;
+    const vh = globalThis.innerHeight;
+    const defaults = getDefaultFolderPositions(vh);
+    let stored: Partial<Record<ProjectCategory, { x: number; y: number }>> = {};
     try {
       const raw = localStorage.getItem(FOLDER_POSITIONS_KEY);
-      if (!raw) return;
-      const stored = JSON.parse(raw) as Partial<
-        Record<ProjectCategory, { x: number; y: number }>
-      >;
-      set({
-        folderPositions: { ...defaults, ...stored },
-      });
+      if (raw) stored = clampStoredPositions(JSON.parse(raw), vw, vh);
     } catch {
       /* ignore invalid stored positions */
     }
+    set({ folderPositions: { ...defaults, ...stored } });
   },
 
   updateDesktopIconPosition: (iconId, x, y) =>
@@ -394,19 +401,19 @@ export const useWindowStore = create<WindowStore>((set, get) => ({
 
   hydrateDesktopIconPositions: () => {
     if (typeof window === "undefined") return;
-    const defaults = getDefaultDesktopIconPositions();
+    // Runs on mount and on viewport resize: fit the defaults to the current
+    // screen and keep any saved positions on it.
+    const vw = globalThis.innerWidth;
+    const vh = globalThis.innerHeight;
+    const defaults = getDefaultDesktopIconPositions(vh);
+    let stored: Partial<Record<DesktopIconId, { x: number; y: number }>> = {};
     try {
       const raw = localStorage.getItem(DESKTOP_ICON_POSITIONS_KEY);
-      if (!raw) return;
-      const stored = JSON.parse(raw) as Partial<
-        Record<DesktopIconId, { x: number; y: number }>
-      >;
-      set({
-        desktopIconPositions: { ...defaults, ...stored },
-      });
+      if (raw) stored = clampStoredPositions(JSON.parse(raw), vw, vh);
     } catch {
       /* ignore invalid stored positions */
     }
+    set({ desktopIconPositions: { ...defaults, ...stored } });
   },
 
   setDockVisible: (visible) => {
