@@ -91,7 +91,7 @@ describe("Desktop website", () => {
     );
     expect(screen.getByRole("link", { name: /github/i })).toHaveAttribute(
       "href",
-      "https://github.com/brianhsu"
+      "https://github.com/briah1212"
     );
     expect(screen.getByRole("link", { name: /download resume/i })).toHaveAttribute(
       "href",
@@ -107,9 +107,12 @@ describe("Desktop website", () => {
     });
 
     expect(await screen.findByText("Projects in this category — more coming soon.")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: /Work-Stealing Thread Pool/i }));
+    const systemsCards = await screen.findAllByRole("button", { name: /HPC Cluster Build/i });
+    fireEvent.click(systemsCards[systemsCards.length - 1]);
 
-    expect(await screen.findByRole("heading", { name: "Work-Stealing Thread Pool" })).toBeInTheDocument();
+    expect(
+      (await screen.findAllByRole("heading", { name: "HPC Cluster Build" })).length
+    ).toBeGreaterThan(0);
     expect(screen.getByText("Problem")).toBeInTheDocument();
     expect(screen.getByText("Approach")).toBeInTheDocument();
     expect(screen.getByText("What I Learned")).toBeInTheDocument();
@@ -117,7 +120,7 @@ describe("Desktop website", () => {
     fireEvent.click(screen.getByRole("button", { name: "All Projects" }));
 
     expect(await screen.findByText("Projects in this category — more coming soon.")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Work-Stealing Thread Pool/i })).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: /HPC Cluster Build/i }).length).toBeGreaterThan(0);
   });
 
   it("surfaces the flagship HPC cluster case study in the Systems folder", async () => {

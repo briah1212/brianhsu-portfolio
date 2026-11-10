@@ -1,3 +1,11 @@
+import {
+  CONTACT,
+  EXPERIENCES,
+  FOCUS_AREAS,
+  PROFILE,
+  SKILLS,
+} from "@/data/profile";
+
 export type CodeLanguage =
   | "json"
   | "python"
@@ -48,47 +56,24 @@ This editor is real (well, mostly). Things you can actually do:
 No node_modules were harmed in the making of this repo.
 `;
 
-const BRIAN_JSON = `{
-  "name": "Brian Hsu",
-  "location": "Ann Arbor, MI",
-  "education": {
-    "school": "University of Michigan",
-    "degrees": ["B.S. Computer Science", "B.S. Cognitive Science"],
-    "track": "Computation",
-    "gpa": 3.9
+const BRIAN_JSON = `${JSON.stringify(
+  {
+    name: PROFILE.name,
+    location: PROFILE.location,
+    education: PROFILE.education,
+    focus: FOCUS_AREAS.map((area) => area.label),
+    experience: EXPERIENCES.map(({ role, org, period }) => ({
+      role,
+      org,
+      period,
+    })),
+    skills: SKILLS,
+    openToInterestingProblems: true,
+    coffee: "yes, please",
   },
-  "focus": [
-    "HPC & Supercomputing",
-    "Distributed Systems",
-    "Scientific Computing",
-    "Systems Programming",
-    "Machine Learning",
-    "Cognitive Science"
-  ],
-  "experience": [
-    {
-      "role": "Supercomputing Engineer",
-      "org": "Los Alamos National Laboratory",
-      "year": 2026,
-      "highlight": "Building HPC clusters from scratch: Rocky Linux, iPXE, SLURM, 400Gb/s+ interconnects"
-    },
-    {
-      "role": "Scientific Computing Engineer",
-      "org": "Memorial Sloan Kettering Cancer Center",
-      "year": 2025,
-      "highlight": "Open OnDemand dashboard for the HPC cluster, -20% new-user support tickets"
-    },
-    {
-      "role": "Data Analytics Intern",
-      "org": "Lyft",
-      "year": 2024,
-      "highlight": "SQL pipelines over 44k+ users, -7% operational costs"
-    }
-  ],
-  "skills": ["Python", "C/C++", "Linux", "AWS", "Docker", "SLURM", "React", "PyTorch"],
-  "openToInterestingProblems": true,
-  "coffee": "yes, please"
-}
+  null,
+  2,
+)}
 `;
 
 const SLURM_MONITOR_PY = `"""Poll a SLURM cluster and summarize node health.
@@ -157,7 +142,7 @@ const INDEX_HTML = `<!DOCTYPE html>
     <main class="hero">
       <h1>Hi, I'm Brian.</h1>
       <p>I build high-performance systems and the tools around them.</p>
-      <a class="cta" href="mailto:brianhsu1212@gmail.com">Say hello</a>
+      <a class="cta" href="mailto:${CONTACT.email}">Say hello</a>
     </main>
   </body>
 </html>
