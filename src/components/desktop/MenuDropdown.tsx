@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
 interface MenuDropdownProps {
@@ -48,12 +48,21 @@ export function MenuDropdown({
     };
   }, [open, onClose, anchorRef]);
 
-  const anchorRect = anchorRef.current?.getBoundingClientRect();
-  const top = (anchorRect?.bottom ?? 28) + 4;
-  const positionStyle =
-    align === "end"
-      ? { right: globalThis.innerWidth - (anchorRect?.right ?? 0), top }
-      : { left: anchorRect?.left ?? 0, top };
+  // Position the panel under its anchor once it mounts. Measuring the DOM
+  // belongs in a layout effect, not in render.
+  useLayoutEffect(() => {
+    const panel = panelRef.current;
+    if (!open || !panel) return;
+    const anchorRect = anchorRef.current?.getBoundingClientRect();
+    panel.style.top = `${(anchorRect?.bottom ?? 28) + 4}px`;
+    if (align === "end") {
+      panel.style.right = `${globalThis.innerWidth - (anchorRect?.right ?? 0)}px`;
+      panel.style.left = "";
+    } else {
+      panel.style.left = `${anchorRect?.left ?? 0}px`;
+      panel.style.right = "";
+    }
+  }, [open, align, anchorRef]);
 
   return (
     <AnimatePresence>
@@ -61,7 +70,6 @@ export function MenuDropdown({
         <motion.div
           ref={panelRef}
           className={`menu-dropdown ${className}`.trim()}
-          style={positionStyle}
           initial={{ opacity: 0, y: -4, scale: 0.98 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -4, scale: 0.98 }}
