@@ -14,3 +14,11 @@ updates:
         update-types:
           - minor
           - patch
+    ignore:
+      # typescript-eslint (via eslint-config-next) supports TypeScript < 6.1;
+      # drop this once it supports newer majors.
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+      # Types track the Node version CI runs (22), not the latest.
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
