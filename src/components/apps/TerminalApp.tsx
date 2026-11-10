@@ -60,8 +60,6 @@ v1.0.0 (Nov 2025)
 
 // Build virtual filesystem from project data
 function buildFilesystem(): DirNode {
-  const projects = getAllProjects();
-  
   // Helper to create project directory with files
   const createProjectDir = (slug: string): DirNode => {
     const project = getProjectBySlug(slug);
@@ -259,7 +257,7 @@ ${FOCUS_AREAS.map(f => `${f.emoji} ${f.label}`).join("\n")}`
                 type: "file",
                 content: `${PROFILE.name}
 ${PROFILE.education.school}
-Ann Arbor, MI
+${PROFILE.location}
 
 Use the 'contact' command to open the contact form.
 Use the 'about' command to learn more.`
@@ -662,7 +660,7 @@ Type 'help' for available commands.`;
   }, []);
 
   // Tab completion logic
-  const handleTabComplete = useCallback(() => {
+  const handleTabComplete = () => {
     const trimmed = input.trim();
     const parts = trimmed.split(/\s+/);
     const cmd = parts[0]?.toLowerCase();
@@ -682,7 +680,6 @@ Type 'help' for available commands.`;
     // Path completion for filesystem commands
     if (["cd", "ls", "cat", "grep"].includes(cmd)) {
       const partial = parts.slice(1).join(" ");
-      const targetPath = partial || cwd;
       const parentPath = partial.includes("/") 
         ? resolvePath(cwd, partial.substring(0, partial.lastIndexOf("/")))
         : cwd;
@@ -717,32 +714,29 @@ Type 'help' for available commands.`;
         addToHistory(trimmed, matches.join("  "));
       }
     }
-  }, [input, cwd, filesystem, addToHistory, commandRegistry]);
+  };
 
-  const runCommand = useCallback(
-    (raw: string) => {
-      const trimmed = raw.trim();
-      if (!trimmed) return;
+  const runCommand = (raw: string) => {
+    const trimmed = raw.trim();
+    if (!trimmed) return;
 
-      const parts = trimmed.split(/\s+/);
-      const cmd = parts[0].toLowerCase();
-      const args = parts.slice(1);
+    const parts = trimmed.split(/\s+/);
+    const cmd = parts[0].toLowerCase();
+    const args = parts.slice(1);
 
-      const handler = commandRegistry[cmd];
-      const output = handler 
-        ? handler(args) ?? ""
-        : `Command not found: ${cmd}. Type 'help' for options.`;
+    const handler = commandRegistry[cmd];
+    const output = handler 
+      ? handler(args) ?? ""
+      : `Command not found: ${cmd}. Type 'help' for options.`;
 
-      if (cmd !== "clear") {
-        addToHistory(raw, output);
-      }
+    if (cmd !== "clear") {
+      addToHistory(raw, output);
+    }
 
-      // Add to command history
-      setCommandHistory(prev => [...prev, trimmed]);
-      setHistoryIndex(-1);
-    },
-    [openApp, toggleTheme, addToHistory, cwd, filesystem]
-  );
+    // Add to command history
+    setCommandHistory(prev => [...prev, trimmed]);
+    setHistoryIndex(-1);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

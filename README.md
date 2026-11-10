@@ -23,7 +23,7 @@ npm run dev       # http://localhost:3000
 | Command | Description |
 |---|---|
 | `npm run dev` | Start development server |
-| `npm run build` | Production build (static export) |
+| `npm run build` | Production build |
 | `npm run lint` | Run ESLint |
 | `npm run test` | Run unit tests |
 | `npm run test:watch` | Watch mode |

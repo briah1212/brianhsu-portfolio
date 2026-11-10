@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 import Anthropic from "@anthropic-ai/sdk";
+import { buildSystemPrompt, sanitizeTurns } from "@/lib/chatPrompt";
 
 // Rate limiting map: IP -> { count, resetTime }
 const rateLimitMap = new Map<
@@ -28,74 +29,14 @@ function checkRateLimit(ip: string): boolean {
   return true;
 }
 
-// System prompt with Brian's profile and projects
-const SYSTEM_PROMPT = `You are Brian Hsu's portfolio assistant. You help visitors learn about Brian's work, experience, and projects.
-
-## About Brian
-Brian Hsu is a Computer Science and Cognitive Science student at the University of Michigan with a 3.9 GPA. He builds high-performance systems — from HPC clusters and scientific computing platforms to data pipelines and ML research tooling — with an eye for how software supports real human and scientific workflows.
-
-## Focus Areas
-- HPC & Supercomputing
-- Distributed Systems
-- Scientific Computing
-- Systems Programming
-- Machine Learning
-- Cognitive Science
-
-## Experience
-
-### Supercomputing Engineer at Los Alamos National Laboratory (May 2026 – Aug 2026)
-Building HPC clusters from scratch with Rocky Linux, iPXE, and SLURM — InfiniBand/Ethernet networking and benchmarking 400Gb/s+ data transfers.
-
-### Scientific Computing Engineer at Memorial Sloan Kettering Cancer Center (Jun 2025 – Sep 2025)
-Shipped an Open OnDemand dashboard for MSK's HPC cluster, cutting new-user support tickets by 20%. Built real-time SLURM monitoring and automated usage reporting.
-
-### Data Analytics Intern at Lyft (Jun 2024 – Aug 2024)
-Built SQL pipelines analyzing 44k+ users; proposed scoring changes that reduced operational costs by 7% and negative user costs by 12%.
-
-## Featured Projects
-
-### HPC Cluster Build
-Built and validated a multi-node HPC cluster from scratch at a national laboratory. Covered bare-metal node provisioning with iPXE and a custom boot server, SLURM workload management, InfiniBand fabric bring-up, and verification that both IB and Ethernet paths were performing at expected bandwidth. The most important lesson: 'it works' and 'it works correctly at the expected performance level' are different claims.
-Tech: Rocky Linux, iPXE, SLURM, InfiniBand/RDMA, Ansible, Python, Bash, Prometheus, Grafana
-
-### Distributed Cache Layer
-A Redis-inspired distributed cache with consistent hashing, TTL eviction, and a lightweight gRPC API. Handles 50k+ ops/sec in local benchmarks with sub-millisecond p99 reads. Shard rebalancing on node add/remove completes in under 200ms for a 4-node cluster.
-Tech: Go, gRPC, Consistent Hashing, Docker, Prometheus
-
-### ETA Prediction Pipeline (Lyft)
-Contributed to feature engineering and evaluation infrastructure for ride ETA models. One feature reduced MAE by ~4% on highway-to-surface-street transitions in the Bay Area market. Production ML is 20% modeling and 80% data plumbing, monitoring, and stakeholder alignment.
-Tech: Python, Spark, Airflow, Feature Stores, A/B Testing
-
-### Cognitive Load Tracker
-A research tool that correlates task-switching behavior with self-reported cognitive load, combining browser telemetry with validated psychometric scales. Pilot study with 12 participants showed a significant correlation (r ≈ 0.72) between switch frequency and reported mental demand during coding tasks.
-Tech: TypeScript, React, Python, Flask, D3.js, SQLite
-
-### Work-Stealing Thread Pool
-A lock-free work-stealing scheduler with futures support, built for EECS 482 to deeply understand parallelism primitives. Near-linear speedup on CPU-bound benchmarks up to core count. False sharing and memory ordering bugs are subtle.
-Tech: C++17, std::thread, Atomics, CMake, Google Test
-
-## Skills
-Python, C/C++, Linux, AWS, Docker, SLURM, React, PyTorch
-
-## Instructions
-- Be concise and technical. Brian's audience includes engineers and researchers.
-- When asked about specific projects, provide detailed technical information.
-- If asked about skills or experience, reference specific projects and accomplishments.
-- You can suggest opening specific projects or apps if relevant to the conversation.
-- If you don't know something, say so honestly.
-- Keep responses focused and avoid unnecessary elaboration unless asked.`;
-
-interface ChatMessage {
-  role: "user" | "assistant" | "system";
-  content: string;
-}
+const SYSTEM_PROMPT = buildSystemPrompt();
 
 export async function POST(request: NextRequest) {
   try {
     // Rate limiting
+    // x-forwarded-for can be a comma-separated proxy chain; the client is first.
     const ip =
-      request.headers.get("x-forwarded-for") ||
+      request.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
       request.headers.get("x-real-ip") ||
       "unknown";
 
@@ -106,12 +47,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
-    const { messages } = body;
+    const body = await request.json().catch(() => null);
+    const messages = sanitizeTurns(body?.messages);
 
-    if (!messages || !Array.isArray(messages)) {
+    if (!messages) {
       return NextResponse.json(
-        { error: "Invalid request: messages array required" },
+        { error: "Invalid request: send a conversation ending with a user message" },
         { status: 400 }
       );
     }
@@ -150,24 +91,19 @@ export async function POST(request: NextRequest) {
         apiKey: process.env.ANTHROPIC_API_KEY,
       });
 
-      // Filter and format messages for Claude (must alternate user/assistant)
-      const claudeMessages = (messages as ChatMessage[])
-        .filter((msg) => msg.role !== "system")
-        .map((msg) => ({
-          role: msg.role === "assistant" ? ("assistant" as const) : ("user" as const),
-          content: msg.content,
-        }));
-
+      // Thinking is always on for this model, so leave room for it and read
+      // the first text block rather than assuming it comes first.
       const claudeCompletion = await anthropic.messages.create({
-        model: "claude-3-5-sonnet-20241022",
-        max_tokens: 500,
+        model: "claude-opus-5-5",
+        max_tokens: 4000,
         system: SYSTEM_PROMPT,
-        messages: claudeMessages,
-      }) as Anthropic.Messages.Message;
+        messages,
+      });
 
-      const claudeMessage = claudeCompletion.content[0];
-      const assistantMessage =
-        claudeMessage.type === "text" ? claudeMessage.text : "";
+      const textBlock = claudeCompletion.content.find(
+        (block) => block.type === "text"
+      );
+      const assistantMessage = textBlock?.type === "text" ? textBlock.text : "";
 
       if (!assistantMessage) {
         throw new Error("No response from Claude");

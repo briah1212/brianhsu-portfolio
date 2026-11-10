@@ -2,24 +2,25 @@
 
 import { motion } from "framer-motion";
 import { FileDown, Globe, Link2, Mail } from "lucide-react";
+import { CONTACT } from "@/data/profile";
 
 const links = [
   {
     label: "Email",
-    value: "hsubrian1212@gmail.com",
-    href: "mailto:hsubrian1212@gmail.com",
+    value: CONTACT.email,
+    href: `mailto:${CONTACT.email}`,
     icon: Mail,
   },
   {
     label: "LinkedIn",
-    value: "linkedin.com/in/brianhsuu",
-    href: "https://linkedin.com/in/brianhsuu",
+    value: `linkedin.com/in/${CONTACT.linkedin}`,
+    href: `https://linkedin.com/in/${CONTACT.linkedin}`,
     icon: Link2,
   },
   {
     label: "GitHub",
-    value: "github.com/brianhsu",
-    href: "https://github.com/brianhsu",
+    value: `github.com/${CONTACT.github}`,
+    href: `https://github.com/${CONTACT.github}`,
     icon: Globe,
   },
 ];
@@ -34,8 +35,7 @@ export function ContactApp() {
       >
         <h2 className="text-lg font-semibold text-center">Get in Touch</h2>
         <p className="mt-2 text-center text-xs text-foreground/50">
-          Open to internships, research collaborations, and interesting
-          conversations.
+          Open to research collaborations and interesting conversations.
         </p>
 
         <div className="mt-6 space-y-2">
@@ -57,7 +57,7 @@ export function ContactApp() {
         </div>
 
         <a
-          href="/Resume.pdf"
+          href={CONTACT.resume}
           className="mt-4 flex w-full items-center justify-center gap-2 py-2 text-xs font-medium text-foreground/55 transition-colors hover:text-sky-400"
         >
           <FileDown size={14} />

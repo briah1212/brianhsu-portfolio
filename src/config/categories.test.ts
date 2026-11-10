@@ -30,8 +30,6 @@ describe("getProjectsWindowTitle", () => {
   });
 
   it("returns project title for project slug routes", () => {
-    expect(getProjectsWindowTitle("distributed-cache")).toBe(
-      "Distributed Cache Layer"
-    );
+    expect(getProjectsWindowTitle("hpc-cluster")).toBe("HPC Cluster Build");
   });
 });
