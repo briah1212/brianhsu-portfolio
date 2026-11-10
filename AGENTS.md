@@ -1,111 +1,56 @@
-# Portfolio Development Environment
+# brianhsu-portfolio
 
-## Current Setup
-- **SSH Machine**: <ssh-host> (LANL)
-- **Container**: Named "brian", runs on port 1234
-- **Runtime**: Podman (auto-detected by brian.sh)
-- **Local Access**: Port forward 1234:localhost:1234
+Brian Hsu's portfolio at [brianhsu.info](https://brianhsu.info): a proof-of-work site framed as a fictional desktop OS, where each object leads to a real case study.
+Product language and intent live in `CONTEXT.md`; the original design notes are in `systemdesign.md`.
 
-## Start Development
+## Stack
 
-### On SSH Machine (<ssh-host>)
-```bash
-cd ~/brianhsu-portfolio
-./brian.sh start
-# Wait for: "Ready on :1234"
-```
+Next.js (App Router) and React 19, TypeScript, Tailwind CSS 4, Framer Motion and anime.js, Zustand for window state, Vitest with jsdom.
+Deployed on Vercel from `main`; the only server code is the chat route in `src/app/api/chat/route.ts`.
 
-### On Local Machine
-```bash
-ssh -L 1234:localhost:1234 brian@<ssh-host>
-# Open: http://localhost:1234
-```
-
-## Container Management
+## Develop
 
 ```bash
-./brian.sh status    # Check if running
-./brian.sh stop      # Stop container
-./brian.sh restart   # Restart
-./brian.sh logs      # View logs
-./brian.sh clean     # Remove everything
+npm ci
+npm run dev        # http://localhost:3000
 ```
 
-## Debugging
+Node 22 matches CI.
+Screens narrower than the `md` breakpoint get the mobile feed (`src/components/mobile/MobileView.tsx`) instead of the desktop.
+The chatbot only renders in production builds, because it needs API keys.
+
+## Checks
+
+CI (`.github/workflows/ci.yml`) runs these on every PR; run them before pushing:
 
 ```bash
-# Interactive shell in container
-podman exec -it brian sh
-
-# Inside container:
-npm run dev     # Dev server
-npm run test    # Run tests
-npm run build   # Production build
-npm run lint    # Check linting
+npm run lint       # must be clean, warnings included
+npx tsc --noEmit
+npm test
+npm run build
 ```
 
-## File Structure
+## Where things live
 
-```
-brianhsu-portfolio/
-├── brian.sh              # Container control script
-├── Dockerfile            # Container definition
-├── src/                  # Source code (hot reload enabled)
-│   └── components/apps/
-│       └── TerminalApp.tsx  # Enhanced terminal with tab completion
-├── STEALTH.md           # Full operational guide
-└── CHEATSHEET.txt       # Quick reference
-```
+- `src/data/profile.ts` - the single source of truth for name, education, experience, skills, and contact links. Home, About, Contact, the mobile feed, the terminal, the code viewer, and the chatbot prompt all read from it.
+- `src/data/projects/*.json` and `index.ts` - case studies. `comingSoon: true` hides an entry everywhere, including slug lookups.
+- `src/lib/chatPrompt.ts` - builds the chatbot's system prompt from the data above and sanitizes incoming chat history.
+- `src/config/` - apps, desktop icons, folder categories, and the default desktop layout.
+- `src/components/` - `desktop/` (shell, dock, menu bar), `window/` (window chrome, drag, resize), `apps/` (one component per app), `projects/`, `mobile/`, `chatbot/`.
+- `public/Resume.pdf` - the resume every "Resume" link serves.
 
-## Hot Reload
+## Content rules
 
-Edit files on SSH machine:
-```bash
-vim src/components/apps/TerminalApp.tsx
-```
-Changes appear instantly in browser at localhost:1234
+- Every claim on the site must match Brian's current resume. Never invent metrics, projects, or results; ask Brian when unsure.
+- Change a fact once, in `src/data/profile.ts` or the project JSON; never hard-code it in a component.
 
-## Terminal Features (Implemented)
+## Chatbot
 
-Commands: `help`, `ls`, `cd`, `cat`, `open`, `neofetch`, `changelog`
-- Tab completion: `hel[TAB]` → `help`
-- Command history: ↑/↓ arrows
-- Easter eggs: `sudo`, `pwd`, `exit`
+`POST /api/chat` tries OpenAI (`gpt-4o-mini`) first and falls back to Claude.
+It needs `OPENAI_API_KEY` and `ANTHROPIC_API_KEY` set in the Vercel project.
+Rate limiting is an in-memory map per server instance, so it is best-effort only.
 
-## Troubleshooting
+## Deploy
 
-```bash
-# Container not responding
-./brian.sh restart
-
-# Port in use
-lsof -i :1234
-kill -9 <PID>
-
-# View full logs
-podman logs brian
-
-# Rebuild from scratch
-./brian.sh clean
-./brian.sh start
-```
-
-## Architecture
-
-```
-Local Browser (localhost:1234)
-    ↕ SSH Tunnel
-SSH Machine (<ssh-host>:1234)
-    ↕ Podman
-Container "brian" (Next.js dev:3000)
-    ↕ Volume Mounts
-~/brianhsu-portfolio/src (hot reload)
-```
-
-## Notes for AI Agents
-
-- Container runs discretely on port 1234 (not standard 3000)
-- Podman auto-detected over Docker
-- Hot reload via read-only volume mounts
-- Terminal app fully enhanced with Phase 7 features from systemdesign.md
-- No local Node.js needed - everything runs in container
+Vercel builds every push; `main` deploys to production.
+After a merge, confirm the live site serves the new commit before calling it done.
