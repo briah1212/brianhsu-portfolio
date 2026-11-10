@@ -14,28 +14,27 @@ const SUGGESTED_QUESTIONS = [
   "What did Brian do at LANL?",
   "Tell me about the HPC cluster project",
   "What are Brian's main technical skills?",
-  "Show me projects related to distributed systems",
+  "What did Brian build at MSK?",
 ];
 
+// The chat only mounts in the browser, after the desktop has loaded.
+function loadSavedMessages(): Message[] {
+  try {
+    const saved = localStorage.getItem("chatbot-messages");
+    return saved ? JSON.parse(saved) : [];
+  } catch (e) {
+    console.error("Failed to load chat history:", e);
+    return [];
+  }
+}
+
 export function ChatWindow({ isOpen, onClose }: ChatWindowProps) {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>(loadSavedMessages);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  // Load messages from localStorage
-  useEffect(() => {
-    const saved = localStorage.getItem("chatbot-messages");
-    if (saved) {
-      try {
-        setMessages(JSON.parse(saved));
-      } catch (e) {
-        console.error("Failed to load chat history:", e);
-      }
-    }
-  }, []);
 
   // Save messages to localStorage
   useEffect(() => {

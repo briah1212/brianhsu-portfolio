@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
 import { createTimeline, scrambleText } from "animejs";
 import type { Timeline } from "animejs";
 
@@ -179,8 +179,10 @@ export function LoadingScreen({ onRevealDesktop, onExitComplete }: LoadingScreen
   const finishedRef = useRef(false);
   const onRevealRef = useRef(onRevealDesktop);
   const onExitRef = useRef(onExitComplete);
-  onRevealRef.current = onRevealDesktop;
-  onExitRef.current = onExitComplete;
+  useLayoutEffect(() => {
+    onRevealRef.current = onRevealDesktop;
+    onExitRef.current = onExitComplete;
+  });
 
   const markExitComplete = useCallback(() => {
     if (finishedRef.current) return;

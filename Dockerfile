@@ -1,4 +1,4 @@
-# Discrete portfolio container
+# Portfolio dev container
 FROM node:22-alpine
 
 WORKDIR /app

@@ -7,9 +7,9 @@ const eslintConfig = defineConfig([
   ...nextTs,
   {
     rules: {
-      "react-hooks/set-state-in-effect": "warn",
-      "react-hooks/refs": "warn",
-      "@next/next/no-img-element": "warn",
+      // next.config.ts sets images.unoptimized, so next/image would add no
+      // optimization here; the <img> tags are small static icons and photos.
+      "@next/next/no-img-element": "off",
     },
   },
   // Override default ignores of eslint-config-next.

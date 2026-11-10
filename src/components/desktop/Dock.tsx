@@ -8,6 +8,7 @@ import {
   useSpring,
   useTransform,
   useMotionValueEvent,
+  useReducedMotion,
   type MotionValue,
 } from "framer-motion";
 import { APPS } from "@/config/apps";
@@ -221,7 +222,7 @@ export function Dock() {
   const hideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const dockPointerDownRef = useRef(false);
   const lastPointerYRef = useRef<number | null>(null);
-  const [reduceMotion, setReduceMotion] = useState(false);
+  const reduceMotion = useReducedMotion() ?? false;
 
   const openApp = useWindowStore((s) => s.openApp);
   const setDockPosition = useWindowStore((s) => s.setDockPosition);
@@ -345,14 +346,6 @@ export function Dock() {
   useEffect(() => {
     return () => clearHideTimeout();
   }, [clearHideTimeout]);
-
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setReduceMotion(mq.matches);
-    const handler = () => setReduceMotion(mq.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
-  }, []);
 
   useEffect(() => {
     if (!hasMaximizedWindow && !dockVisible) {

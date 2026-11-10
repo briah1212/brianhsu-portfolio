@@ -38,7 +38,7 @@ On your **local machine** (Mac/Windows), run:
 
 ```bash
 # Forward port 3000 from SSH machine to your local machine
-ssh -L 3000:localhost:3000 brianhsu@your-ssh-machine.lanl.gov
+ssh -L 3000:localhost:3000 <user>@<ssh-host>
 
 # Keep this terminal open!
 ```
@@ -49,7 +49,7 @@ Then open browser: **http://localhost:3000**
 
 ```bash
 # Run in background
-ssh -fN -L 3000:localhost:3000 brianhsu@your-ssh-machine.lanl.gov
+ssh -fN -L 3000:localhost:3000 <user>@<ssh-host>
 
 # Check if running
 ps aux | grep "ssh -fN"
@@ -136,7 +136,7 @@ npm run build
 
 2. **Set up port forwarding** (on local machine)
    ```bash
-   ssh -L 3000:localhost:3000 brianhsu@your-ssh-machine.lanl.gov
+   ssh -L 3000:localhost:3000 <user>@<ssh-host>
    ```
 
 3. **Open browser**: http://localhost:3000
@@ -338,7 +338,7 @@ cd ~/brianhsu-portfolio
 docker-compose up
 
 # 2. On local machine: Create SSH tunnel
-ssh -L 3000:localhost:3000 brianhsu@ssh-machine.lanl.gov
+ssh -L 3000:localhost:3000 <user>@<ssh-host>
 
 # 3. Open browser: http://localhost:3000
 
