@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   motion,
   AnimatePresence,
@@ -66,23 +66,30 @@ export function Window({ window: win }: WindowProps) {
   const boundsHeight = useMotionValue(win.height);
   const boundsRadius = useMotionValue(win.isMaximized ? 0 : 12);
   const winIdRef = useRef(win.id);
-  winIdRef.current = win.id;
 
   const isRestoring =
     !win.isMaximized && win.preMaximizeBounds !== undefined;
 
-  winRectRef.current = isRestoring
-    ? {
-        x: win.preMaximizeBounds!.x,
-        y: win.preMaximizeBounds!.y,
-        width: win.preMaximizeBounds!.width,
-        height: win.preMaximizeBounds!.height,
-      }
-    : { x: win.x, y: win.y, width: win.width, height: win.height };
+  // Keep the latest id and rect in refs for event handlers and async
+  // animation callbacks. Written in a layout effect, not during render.
+  useLayoutEffect(() => {
+    winIdRef.current = win.id;
+    winRectRef.current = isRestoring
+      ? {
+          x: win.preMaximizeBounds!.x,
+          y: win.preMaximizeBounds!.y,
+          width: win.preMaximizeBounds!.width,
+          height: win.preMaximizeBounds!.height,
+        }
+      : { x: win.x, y: win.y, width: win.width, height: win.height };
+  });
 
   const shouldGenie = genieAppId === win.appId && genieOrigin !== null;
 
   useEffect(() => {
+    // One extra render after mount is the point: it flips the window from
+    // its entry animation to its steady state.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setHasEntered(true);
   }, []);
 
@@ -127,6 +134,8 @@ export function Window({ window: win }: WindowProps) {
     }
 
     if (isMaximizeTransition) {
+      // Tracks a spring animation started by this same effect.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsAnimatingBounds(true);
     }
 
@@ -159,6 +168,9 @@ export function Window({ window: win }: WindowProps) {
         control.stop();
       }
     };
+    // `win` changes identity on every store update; the listed fields are
+    // the ones that should restart the animation.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     win.x,
     win.y,

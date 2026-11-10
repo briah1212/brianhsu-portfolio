@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { getEffectiveDockArea } from "@/components/window/resizeUtils";
 import { clampFolderPosition } from "@/config/desktopLayout";
@@ -36,18 +36,20 @@ export function DesktopItem({
   const didDragRef = useRef(false);
   const itemRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (!isDragging) {
-      livePosRef.current = { x, y };
-      setLivePos({ x, y });
-    }
-  }, [x, y, isDragging]);
+  // Outside a drag the stored position (props) is the truth; livePos only
+  // drives rendering while the pointer is down.
+  const propsPosRef = useRef({ x, y });
+  useLayoutEffect(() => {
+    propsPosRef.current = { x, y };
+  });
 
   const handlePointerDown = useCallback(
     (e: React.PointerEvent) => {
       e.stopPropagation();
       itemRef.current?.setPointerCapture(e.pointerId);
 
+      livePosRef.current = propsPosRef.current;
+      setLivePos(propsPosRef.current);
       dragStart.current = {
         pointerX: e.clientX,
         pointerY: e.clientY,
@@ -123,7 +125,7 @@ export function DesktopItem({
       className={`desktop-folder pointer-events-auto ${
         isDragging ? "desktop-folder-dragging" : ""
       }`}
-      style={{ left: livePos.x, top: livePos.y }}
+      style={isDragging ? { left: livePos.x, top: livePos.y } : { left: x, top: y }}
       animate={{ scale }}
       transition={ITEM_SPRING}
       onPointerDown={handlePointerDown}
