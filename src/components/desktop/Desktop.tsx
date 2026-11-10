@@ -38,6 +38,21 @@ export function Desktop() {
     hydrateTheme();
     hydrateFolderPositions();
     hydrateDesktopIconPositions();
+
+    // Re-fit desktop icons when the viewport changes so none end up off-screen.
+    let frame = 0;
+    const onResize = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        hydrateFolderPositions();
+        hydrateDesktopIconPositions();
+      });
+    };
+    window.addEventListener("resize", onResize);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("resize", onResize);
+    };
   }, [hydrateTheme, hydrateFolderPositions, hydrateDesktopIconPositions]);
 
   useEffect(() => {
@@ -47,8 +62,10 @@ export function Desktop() {
   useEffect(() => {
     if (!desktopReady) return;
     const timer = setTimeout(() => {
-      openApp("home");
+      // Open About first so Home (opened last) gets the higher z-index and
+      // lands on top, matching the intended default stacking.
       openApp("about");
+      openApp("home");
     }, 300);
     return () => clearTimeout(timer);
   }, [desktopReady, openApp]);
