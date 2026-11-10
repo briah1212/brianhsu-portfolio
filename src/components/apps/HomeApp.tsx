@@ -272,7 +272,7 @@ export function HomeApp() {
           transition={{ duration: 0.6, ease: SECTION_EASE }}
         >
           <p className="home-footer-text">
-            Want to collaborate or chat about systems, research, or internships?
+            Want to collaborate or chat about systems, data, or research?
           </p>
           <HomeActionButton
             label="Get in touch"

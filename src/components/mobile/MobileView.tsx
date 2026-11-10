@@ -1,7 +1,7 @@
 "use client";
 
 import { FileDown, Globe, Link2, Mail } from "lucide-react";
-import { EXPERIENCES, PROFILE, SKILLS } from "@/data/profile";
+import { CONTACT, EXPERIENCES, PROFILE, SKILLS } from "@/data/profile";
 import { getFeaturedProjects } from "@/data/projects";
 
 const PROOF_PATHS = [
@@ -25,20 +25,20 @@ const PROOF_PATHS = [
 const CONTACT_LINKS = [
   {
     label: "Email",
-    href: "mailto:hsubrian1212@gmail.com",
-    value: "hsubrian1212@gmail.com",
+    href: `mailto:${CONTACT.email}`,
+    value: CONTACT.email,
     icon: Mail,
   },
   {
     label: "LinkedIn",
-    href: "https://linkedin.com/in/brianhsuu",
-    value: "linkedin.com/in/brianhsuu",
+    href: `https://linkedin.com/in/${CONTACT.linkedin}`,
+    value: `linkedin.com/in/${CONTACT.linkedin}`,
     icon: Link2,
   },
   {
     label: "GitHub",
-    href: "https://github.com/brianhsu",
-    value: "github.com/brianhsu",
+    href: `https://github.com/${CONTACT.github}`,
+    value: `github.com/${CONTACT.github}`,
     icon: Globe,
   },
 ] as const;
@@ -169,7 +169,7 @@ export function MobileView() {
         </div>
 
         <a
-          href="/Resume.pdf"
+          href={CONTACT.resume}
           className="mt-5 inline-flex items-center gap-2 text-xs font-medium text-foreground/55 transition-colors hover:text-sky-400"
         >
           <FileDown size={14} aria-hidden />

@@ -38,7 +38,7 @@ describe("MobileView (guided proof feed)", () => {
     );
     expect(screen.getByRole("link", { name: /github/i })).toHaveAttribute(
       "href",
-      "https://github.com/brianhsu"
+      "https://github.com/briah1212"
     );
     expect(
       screen.getByRole("link", { name: /resume/i })

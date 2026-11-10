@@ -59,7 +59,7 @@ export function ProjectsApp({ windowId, route }: ProjectsAppProps) {
     <div className="app-content h-full overflow-y-auto p-5">
       <h2 className="text-lg font-semibold">Projects</h2>
       <p className="mt-1 text-xs text-foreground/50">
-        Selected work across systems, research, and internships.
+        Selected work across systems, research, and industry.
       </p>
       <div className="mt-4 flex flex-col">
         {projects.map((project, i) => (

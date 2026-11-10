@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Brian Hsu — Portfolio",
   description:
-    "Computer Science & Cognitive Science student. Software engineering, systems, and research.",
+    "Computer Science & Cognitive Science graduate. Software engineering, systems, and research.",
   openGraph: {
     title: "Brian Hsu — Portfolio",
     description:
